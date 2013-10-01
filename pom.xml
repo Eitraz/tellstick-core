@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<name>tellstick-core</name>
-	<url>http://maven.apache.org</url>
+	<url>https://bitbucket.org/Eitraz/tellstick-core</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

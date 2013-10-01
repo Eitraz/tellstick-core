@@ -21,6 +21,7 @@ public class GroupDevice extends Device {
 		// Dim
 		if ((methods & TellstickCoreLibrary.TELLSTICK_DIM) > 0)
 			devices.add(new DimmableDevice(deviceHandler, deviceId));
+
 		// On/Off
 		else if ((methods & TellstickCoreLibrary.TELLSTICK_TURNON) > 0 && (methods & TellstickCoreLibrary.TELLSTICK_TURNOFF) > 0)
 			devices.add(new OnOffDevice(deviceHandler, deviceId));

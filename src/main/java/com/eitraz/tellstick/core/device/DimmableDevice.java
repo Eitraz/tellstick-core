@@ -19,6 +19,22 @@ public class DimmableDevice extends Device {
 			throw new DeviceException(this, status);
 	}
 
+	/**
+	 * On (max level)
+	 * @throws DeviceException
+	 */
+	public void on() throws DeviceException {
+		dim(255);
+	}
+
+	/**
+	 * Off (min level)
+	 * @throws DeviceException
+	 */
+	public void off() throws DeviceException {
+		dim(0);
+	}
+
 	public boolean isOn() {
 		boolean isOn = (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
 		return isOn || ((TellstickCoreLibrary.TELLSTICK_DIM & getStatus()) > 0);
