@@ -180,7 +180,7 @@ public interface TellstickCoreLibrary extends Library {
 
 	// typedef void (WINAPI *TDControllerEvent)(int controllerId, int changeEvent, int changeType, const char *newValue, int callbackId, void *context);
 	public interface TDControllerEvent extends Callback {
-		public void event(int controllerId, int changeEvent, int changeType, Pointer newValue, int callbackId, Pointer context);
+		public void event(int controllerId, int changeEvent, int changeType, String newValue, int callbackId, Pointer context);
 	}
 
 
