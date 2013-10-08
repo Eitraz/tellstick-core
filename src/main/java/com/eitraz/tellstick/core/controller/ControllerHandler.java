@@ -64,8 +64,10 @@ public class ControllerHandler {
 	 * Sensor Event Listener
 	 */
 	private class TDControllerEventListener implements TDControllerEvent {
-
-		@Override
+		/*
+		 * (non-Javadoc)
+		 * @see com.eitraz.tellstick.core.TellstickCoreLibrary.TDControllerEvent#event(int, int, int, java.lang.String, int, com.sun.jna.Pointer)
+		 */
 		public void event(int controllerId, int changeEvent, int changeType, String newValue, int callbackId, Pointer context) {
 			String string = "";
 			string += "controllerId: " + controllerId + ", ";

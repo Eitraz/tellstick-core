@@ -267,7 +267,6 @@ public class DeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDDeviceEvent#event(int, int, java.lang.String, int, com.sun.jna.Pointer)
 		 */
-		@Override
 		public void event(int deviceId, int method, Pointer dataPointer, int callbackId, Pointer context) {
 			String data = dataPointer.getString(0);
 
@@ -297,7 +296,6 @@ public class DeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDDeviceChangeEvent#event(int, int, int, int, com.sun.jna.Pointer)
 		 */
-		@Override
 		public void event(int deviceId, int changeEvent, int changeType, int callbackId, Pointer context) {
 			// Don't fire event to often
 			if (!timeoutHandler.isReady(deviceId + "," + changeEvent + "," + changeType))

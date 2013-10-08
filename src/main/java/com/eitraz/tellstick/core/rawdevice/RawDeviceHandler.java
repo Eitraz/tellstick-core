@@ -132,7 +132,6 @@ public class RawDeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDRawDeviceEvent#event(java.lang.String, int, int, com.sun.jna.Pointer)
 		 */
-		@Override
 		public void event(Pointer dataPointer, int controllerId, int callbackId, Pointer context) {
 			String data = dataPointer.getString(0);
 

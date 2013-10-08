@@ -78,12 +78,6 @@ public abstract class Device implements Comparable<Device> {
 	}
 
 	/**
-	 * Get Type
-	 * @return type
-	 */
-	public abstract String getType();
-
-	/**
 	 * Get Status
 	 * @return status
 	 */
@@ -95,7 +89,6 @@ public abstract class Device implements Comparable<Device> {
 	 * (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	@Override
 	public int compareTo(Device device) {
 		return getDeviceId() - device.getDeviceId();
 	}
@@ -121,10 +114,10 @@ public abstract class Device implements Comparable<Device> {
 	 */
 	@Override
 	public String toString() {
-		return "TellstickDevice [deviceId=" + deviceId + ", name=" + name
+		return "Device [deviceHandler=" + deviceHandler + ", library="
+				+ library + ", deviceId=" + deviceId + ", name=" + name
 				+ ", model=" + model + ", protocol=" + protocol
-				+ ", deviceType=" + deviceType + ", getType()=" + getType()
-				+ "]";
+				+ ", deviceType=" + deviceType + "]";
 	}
 
 	/* (non-Javadoc)

@@ -42,8 +42,4 @@ public class OnOffDevice extends Device {
 		return (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
 	}
 
-	@Override
-	public String getType() {
-		return "On/Off Device";
-	}
 }

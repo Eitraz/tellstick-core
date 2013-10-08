@@ -36,17 +36,14 @@ public class Test {
 			}
 			// Device Event Listener
 			deviceHandler.addDeviceEventListener(new DeviceEventListener() {
-				@Override
 				public void deviceRemoved(int deviceId) {
 					System.out.println("Device #" + deviceId + " removed");
 				}
 
-				@Override
 				public void deviceChanged(int deviceId, Device device) {
 					System.out.println("Device #" + deviceId + " changed: " + device);
 				}
 
-				@Override
 				public void deviceAdded(int deviceId, Device device) {
 					System.out.println("Device #" + deviceId + " added: " + device);
 				}
@@ -60,7 +57,6 @@ public class Test {
 			}
 			// Sensor Event Listener
 			sensorHandler.addDeviceEventListener(new SensorEventListener() {
-				@Override
 				public void sensorEvent(Sensor sensor) {
 					System.out.println("Sensor event: " + sensor);
 				}
@@ -69,7 +65,6 @@ public class Test {
 
 			// Raw Device Event Listener
 			tellstick.getRawDeviceHandler().addDeviceEventListener(new RawDeviceEventListener() {
-				@Override
 				public void rawDeviceEvent(RawDevice device) {
 					System.out.println("\tRaw device event: " + device);
 				}

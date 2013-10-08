@@ -40,8 +40,4 @@ public class DimmableDevice extends Device {
 		return isOn || ((TellstickCoreLibrary.TELLSTICK_DIM & getStatus()) > 0);
 	}
 
-	@Override
-	public String getType() {
-		return "Dimmable Device";
-	}
 }

@@ -22,9 +22,4 @@ public class SceneDevice extends Device {
 			throw new DeviceException(this, status);
 	}
 
-	@Override
-	public String getType() {
-		return "Scene Device";
-	}
-
 }

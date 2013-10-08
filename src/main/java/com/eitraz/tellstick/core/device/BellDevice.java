@@ -21,8 +21,4 @@ public class BellDevice extends Device {
 			throw new DeviceException(this, status);
 	}
 
-	@Override
-	public String getType() {
-		return "Bell Device";
-	}
 }

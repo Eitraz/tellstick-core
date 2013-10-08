@@ -47,8 +47,4 @@ public class UpDownDevice extends Device {
 			throw new DeviceException(this, status);
 	}
 
-	@Override
-	public String getType() {
-		return "Up/Down Device";
-	}
 }

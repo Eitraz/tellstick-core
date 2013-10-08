@@ -43,9 +43,43 @@ public class GroupDevice extends Device {
 		return devices;
 	}
 
-	@Override
-	public String getType() {
-		return "Group Device";
+	/**
+	 * Turn on
+	 */
+	public void on() {
+		logger.debug("ON " + toString());
+
+		for (Device device : getDevices()) {
+			try {
+				// On/off device
+				if (device instanceof OnOffDevice)
+					((OnOffDevice) device).on();
+				// Dimmable device
+				else if (device instanceof DimmableDevice)
+					((DimmableDevice) device).on();
+			} catch (DeviceException e) {
+				logger.error("Failed to turn on device #" + device.getDeviceId());
+			}
+		}
 	}
 
+	/**
+	 * Turn off
+	 */
+	public void off() {
+		logger.debug("ON " + toString());
+
+		for (Device device : getDevices()) {
+			try {
+				// On/off device
+				if (device instanceof OnOffDevice)
+					((OnOffDevice) device).off();
+				// Dimmable device
+				else if (device instanceof DimmableDevice)
+					((DimmableDevice) device).off();
+			} catch (DeviceException e) {
+				logger.error("Failed to turn on device #" + device.getDeviceId());
+			}
+		}
+	}
 }
