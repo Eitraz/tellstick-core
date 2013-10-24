@@ -99,12 +99,12 @@ public class RawDeviceHandler {
 
 		// Command
 		if (COMMAND.equalsIgnoreCase(_class)) {
-			String method = parameters.remove(METHOD);
+			String method = parameters.get(METHOD);
 			return new RawCommandDevice(_class, protocol, model, method, parameters);
 		}
 		// Sensor
 		else if (SENSOR.equalsIgnoreCase(_class)) {
-			String id = parameters.remove(ID);
+			String id = parameters.get(ID);
 			return new RawSensorDevice(_class, protocol, model, id, parameters);
 		}
 		// Other
@@ -132,6 +132,7 @@ public class RawDeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDRawDeviceEvent#event(java.lang.String, int, int, com.sun.jna.Pointer)
 		 */
+		@Override
 		public void event(Pointer dataPointer, int controllerId, int callbackId, Pointer context) {
 			String data = dataPointer.getString(0);
 
