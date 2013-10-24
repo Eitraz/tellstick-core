@@ -12,7 +12,7 @@ import com.eitraz.tellstick.core.sensor.Sensor;
 import com.eitraz.tellstick.core.sensor.SensorEventListener;
 import com.eitraz.tellstick.core.sensor.SensorHandler;
 
-public class Test {
+public class TellstickCoreTest {
 	public static void main(String[] args) {
 
 		Tellstick tellstick = new Tellstick();

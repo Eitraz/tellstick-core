@@ -1,11 +1,12 @@
 package com.eitraz.tellstick.core.device;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
 
@@ -19,7 +20,8 @@ import com.sun.jna.Pointer;
 public class DeviceHandler {
 	private static final Logger logger = Logger.getLogger(DeviceHandler.class);
 
-	private final Set<DeviceEventListener> deviceEventListeners = new HashSet<DeviceEventListener>();
+	private final Set<DeviceEventListener> deviceEventListeners = new CopyOnWriteArraySet<DeviceEventListener>();
+	private final Map<Integer, Device> devices = new ConcurrentHashMap<Integer, Device>();
 
 	private final TellstickCoreLibrary library;
 	private final int supportedMethods;
@@ -114,6 +116,21 @@ public class DeviceHandler {
 	 * @throws DeviceNotSupportedException
 	 */
 	public Device getDevice(int deviceId) throws DeviceNotSupportedException {
+		Device device = devices.get(deviceId);
+		if (device == null) {
+			device = createDevice(deviceId);
+			devices.put(deviceId, device);
+		}
+		return device;
+	}
+
+	/**
+	 * Create Device
+	 * @param deviceId
+	 * @return
+	 * @throws DeviceNotSupportedException
+	 */
+	protected Device createDevice(int deviceId) throws DeviceNotSupportedException {
 		int methods = library.tdMethods(deviceId, getSupportedMethods());
 		int type = library.tdGetDeviceType(deviceId);
 
@@ -267,6 +284,7 @@ public class DeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDDeviceEvent#event(int, int, java.lang.String, int, com.sun.jna.Pointer)
 		 */
+		@Override
 		public void event(int deviceId, int method, Pointer dataPointer, int callbackId, Pointer context) {
 			String data = dataPointer.getString(0);
 
@@ -296,6 +314,7 @@ public class DeviceHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDDeviceChangeEvent#event(int, int, int, int, com.sun.jna.Pointer)
 		 */
+		@Override
 		public void event(int deviceId, int changeEvent, int changeType, int callbackId, Pointer context) {
 			// Don't fire event to often
 			if (!timeoutHandler.isReady(deviceId + "," + changeEvent + "," + changeType))
