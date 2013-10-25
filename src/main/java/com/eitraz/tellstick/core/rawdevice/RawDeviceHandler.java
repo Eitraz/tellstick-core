@@ -53,7 +53,7 @@ public class RawDeviceHandler {
 	 * Add Raw Device Event Listen
 	 * @param listener
 	 */
-	public void addDeviceEventListener(RawDeviceEventListener listener) {
+	public void addRawDeviceEventListener(RawDeviceEventListener listener) {
 		rawDeviceEventListeners.add(listener);
 	}
 
@@ -61,7 +61,7 @@ public class RawDeviceHandler {
 	 * Remove Raw Device Event Listener
 	 * @param listener
 	 */
-	public void removeDeviceEventListener(RawDeviceEventListener listener) {
+	public void removeRawDeviceEventListener(RawDeviceEventListener listener) {
 		rawDeviceEventListeners.remove(listener);
 	}
 
