@@ -175,6 +175,8 @@ public class DeviceManager {
 	 *
 	 */
 	private class DeviceActionThread extends Thread {
+		private static final int ACTION_DELAY = 250;
+
 		@Override
 		public void run() {
 			while (actionThread == this) {
@@ -199,6 +201,11 @@ public class DeviceManager {
 				// Skip ahead if action is null
 				if (action == null)
 					continue;
+
+				// Always add a minor delay to allow other signals to arrive
+				try {
+					Thread.sleep(ACTION_DELAY);
+				} catch (InterruptedException e) {}
 
 				// Wait until it's time to run
 				while (System.currentTimeMillis() <= action.getTime()) {
