@@ -91,7 +91,7 @@ public abstract class Device implements Comparable<Device> {
 	 */
 	@Override
 	public int compareTo(Device device) {
-		return getDeviceId() - device.getDeviceId();
+		return getName().compareTo(device.getName());
 	}
 
 	/**
