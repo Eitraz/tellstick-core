@@ -52,7 +52,7 @@ public class SensorHandler {
 	 * Add Sensor Event Listen
 	 * @param listener
 	 */
-	public void addDeviceEventListener(SensorEventListener listener) {
+	public void addSensorEventListener(SensorEventListener listener) {
 		sensorEventListeners.add(listener);
 	}
 
@@ -60,7 +60,7 @@ public class SensorHandler {
 	 * Remove Sensor Event Listener
 	 * @param listener
 	 */
-	public void removeDeviceEventListener(SensorEventListener listener) {
+	public void removeSensorEventListener(SensorEventListener listener) {
 		sensorEventListeners.remove(listener);
 	}
 
@@ -177,6 +177,7 @@ public class SensorHandler {
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TellstickCoreLibrary.TDSensorEvent#event(java.lang.String, java.lang.String, int, int, java.lang.String, int, int, com.sun.jna.Pointer)
 		 */
+		@Override
 		public void event(String protocol, String model, int id, int dataType, String value, int timestamp, int callbackId, Pointer context) {
 			String string = "";
 			string += "protocol: " + protocol + ", ";

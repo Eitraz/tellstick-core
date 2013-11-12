@@ -172,10 +172,11 @@ public class DeviceHandler {
 	 * @param name
 	 * @param model
 	 * @param protocol
+	 * @return
 	 * @throws TellstickException
 	 * @throws DeviceNotSupportedException
 	 */
-	public void createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
+	public Device createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
 		int deviceId = library.tdAddDevice();
 
 		// Unable to create device
@@ -201,13 +202,7 @@ public class DeviceHandler {
 				logger.error("Unable to set parameter '" + entry.getKey());
 		}
 
-		// Get device
-		//		Device device = getDevice(deviceId);
-
-		// Fire device added
-		//		fireDeviceAdded(deviceId, device);
-
-		//		return device;
+		return getDevice(deviceId);
 	}
 
 	/**
