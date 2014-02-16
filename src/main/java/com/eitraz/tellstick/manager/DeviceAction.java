@@ -110,4 +110,14 @@ public class DeviceAction implements Comparable<DeviceAction> {
 			return false;
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "DeviceAction [device=" + device + ", action=" + action
+				+ ", counter=" + counter + ", time=" + time + "]";
+	}
+
 }

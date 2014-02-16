@@ -13,7 +13,6 @@ import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 
 public class SensorHandler {
 	private static final Logger logger = Logger.getLogger(SensorHandler.class);
@@ -109,9 +108,9 @@ public class SensorHandler {
 	public List<Sensor> getSensors() {
 		List<Sensor> sensors = new ArrayList<Sensor>();
 
-		int protocolLen = 20;
+		int protocolLen = 128;
 		Pointer protocolPointer = new Memory(protocolLen);
-		int modelLen = 20;
+		int modelLen = 128;
 		Pointer modelPointer = new Memory(modelLen);
 
 		IntByReference idReference = new IntByReference();
@@ -124,13 +123,13 @@ public class SensorHandler {
 			String model = modelPointer.getString(0);
 			int dataTypes = dataTypesReference.getValue();
 
-			int valueLen = 20;
+			int valueLen = 128;
 			Pointer valuePointer = new Memory(valueLen);
-			LongByReference timestamp = new LongByReference();
+			IntByReference timestamp = new IntByReference();
 
 			// Get data types
 			for (int dataType : getDataTypes(dataTypes)) {
-				if (library.tdSensorValue(protocolPointer, modelPointer, id, dataType, valuePointer, valueLen, timestamp) == TellstickCoreLibrary.TELLSTICK_SUCCESS) {
+				if (library.tdSensorValue(protocol, model, id, dataType, valuePointer, valueLen, timestamp) == TellstickCoreLibrary.TELLSTICK_SUCCESS) {
 					String value = valuePointer.getString(0);
 					sensors.add(getSensor(id, protocol, model, dataType, value, timestamp.getValue()));
 				}

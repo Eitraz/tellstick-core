@@ -66,8 +66,13 @@ public class RawDevice {
 		int result = 1;
 		result = prime * result + ((_class == null) ? 0 : _class.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
-		result = prime * result
-				+ ((protocol == null) ? 0 : protocol.hashCode());
+		result = prime * result + ((protocol == null) ? 0 : protocol.hashCode());
+
+		result = prime * result + ((parameters.get("house") == null) ? 0 : parameters.get("house").hashCode());
+		result = prime * result + ((parameters.get("unit") == null) ? 0 : parameters.get("unit").hashCode());
+		result = prime * result + ((parameters.get("code") == null) ? 0 : parameters.get("code").hashCode());
+		result = prime * result + ((parameters.get("group") == null) ? 0 : parameters.get("group").hashCode());
+
 		return result;
 	}
 
@@ -98,6 +103,31 @@ public class RawDevice {
 				return false;
 		} else if (!protocol.equals(other.protocol))
 			return false;
+
+		if (parameters.get("house") == null) {
+			if (other.parameters.get("house") != null)
+				return false;
+		} else if (!parameters.get("house").equals(other.parameters.get("house")))
+			return false;
+
+		if (parameters.get("unit") == null) {
+			if (other.parameters.get("unit") != null)
+				return false;
+		} else if (!parameters.get("unit").equals(other.parameters.get("unit")))
+			return false;
+
+		if (parameters.get("code") == null) {
+			if (other.parameters.get("code") != null)
+				return false;
+		} else if (!parameters.get("code").equals(other.parameters.get("code")))
+			return false;
+
+		if (parameters.get("group") == null) {
+			if (other.parameters.get("group") != null)
+				return false;
+		} else if (!parameters.get("group").equals(other.parameters.get("group")))
+			return false;
+
 		return true;
 	}
 

@@ -12,6 +12,9 @@ public class GroupDevice extends Device {
 	public GroupDevice(DeviceHandler deviceHandler, int deviceId) {
 		super(deviceHandler, deviceId);
 
+		if (logger.isTraceEnabled())
+			logger.trace("Get methods " + deviceId);
+
 		int methods = getLibrary().tdMethods(deviceId, deviceHandler.getSupportedMethods());
 
 		// Bell

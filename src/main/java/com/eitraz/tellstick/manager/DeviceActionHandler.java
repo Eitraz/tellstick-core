@@ -1,5 +1,7 @@
 package com.eitraz.tellstick.manager;
 
+import org.apache.log4j.Logger;
+
 import com.eitraz.tellstick.core.device.BellDevice;
 import com.eitraz.tellstick.core.device.Device;
 import com.eitraz.tellstick.core.device.DeviceException;
@@ -16,6 +18,8 @@ import com.eitraz.tellstick.core.device.UpDownDevice;
  *
  */
 public final class DeviceActionHandler {
+	private static final Logger logger = Logger.getLogger(DeviceActionHandler.class);
+
 	/**
 	 * Handle Device Action
 	 * @param deviceAction
@@ -24,6 +28,8 @@ public final class DeviceActionHandler {
 	public static void handleDeviceAction(DeviceAction deviceAction) throws DeviceException {
 		Device device = deviceAction.getDevice();
 		Object action = deviceAction.getAction();
+
+		logger.trace(device + ", "+ action);
 
 		// On/off
 		if (device instanceof OnOffDevice)

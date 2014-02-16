@@ -17,8 +17,8 @@ public class RawDeviceHandler {
 
 	private static final int TIMEOUT = 5000;
 
-	private static final String DELIMITER_MAJOR = ";";
-	private static final String DELIMITER_MINOR = ":";
+	public static final String DELIMITER_MAJOR = ";";
+	public static final String DELIMITER_MINOR = ":";
 
 	public static final String _CLASS = "class";
 	public static final String PROTOCOL = "protocol";
@@ -44,6 +44,7 @@ public class RawDeviceHandler {
 
 	private int rawDeviceEventCallbackId = -1;
 	private TDRawDeviceEventListener rawDeviceEventListener;
+	private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<String>(TIMEOUT);
 
 	public RawDeviceHandler(TellstickCoreLibrary library) {
 		this.library = library;
@@ -123,39 +124,47 @@ public class RawDeviceHandler {
 	}
 
 	/**
+	 * @param controllerId
+	 * @param data
+	 */
+	public void handleEvent(int controllerId, String data) {
+		//			String data = dataPointer.getString(0);
+
+		// Don't fire event to often
+		if (!timeoutHandler.isReady(data))
+			return;
+
+		// Debug log
+		if (logger.isDebugEnabled())
+			logger.debug(data);
+
+		String[] split = data.split(DELIMITER_MAJOR);
+
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put("controllerId", Integer.toString(controllerId));
+		for (String string : split) {
+			String[] pair = string.split(DELIMITER_MINOR);
+			if (pair.length == 2)
+				parameters.put(pair[0].trim(), pair[1].trim());
+		}
+
+		// Fire event
+		fireRawDeviceEvent(getRawDevice(parameters));
+	}
+
+	/**
 	 * Raw Device Event Listener
 	 */
 	private class TDRawDeviceEventListener implements TDRawDeviceEvent {
-		private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<String>(TIMEOUT);
-
 		/*
 		 * (non-Javadoc)
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDRawDeviceEvent#event(java.lang.String, int, int, com.sun.jna.Pointer)
 		 */
 		@Override
-		public void event(Pointer dataPointer, int controllerId, int callbackId, Pointer context) {
-			String data = dataPointer.getString(0);
+		public void event(String data, int controllerId, int callbackId, Pointer context) {
+			logger.trace("event: " + data);
 
-			// Don't fire event to often
-			if (!timeoutHandler.isReady(data))
-				return;
-
-			// Debug log
-			if (logger.isDebugEnabled())
-				logger.debug(data);
-
-			String[] split = data.split(DELIMITER_MAJOR);
-
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("controllerId", Integer.toString(controllerId));
-			for (String string : split) {
-				String[] pair = string.split(DELIMITER_MINOR);
-				if (pair.length == 2)
-					parameters.put(pair[0].trim(), pair[1].trim());
-			}
-
-			// Fire event
-			fireRawDeviceEvent(getRawDevice(parameters));
+			handleEvent(controllerId, data);
 		}
 
 	}

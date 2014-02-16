@@ -25,8 +25,8 @@ public class DeviceManager {
 
 	private final SortedSet<DeviceAction> actions = new TreeSet<DeviceAction>();
 
-	public int retryDelay = 1000;
-	public int retries = 2;
+	public int retryDelay = 2000;
+	public int retries = 3;
 
 	private DeviceActionThread actionThread;
 
@@ -94,6 +94,7 @@ public class DeviceManager {
 	 * @param on
 	 */
 	public void set(OnOffDevice device, boolean on) {
+		logger.trace(device + ", " + on);
 		addAction(new DeviceAction(device, on, retries));
 	}
 
@@ -103,6 +104,7 @@ public class DeviceManager {
 	 * @param on
 	 */
 	public void set(GroupDevice device, boolean on) {
+		logger.trace(device + ", " + on);
 		addAction(new DeviceAction(device, on, retries));
 	}
 
@@ -112,6 +114,7 @@ public class DeviceManager {
 	 * @param level
 	 */
 	public void set(DimmableDevice device, int level) {
+		logger.trace(device + ", " + level);
 		addAction(new DeviceAction(device, level, retries));
 	}
 
@@ -121,6 +124,7 @@ public class DeviceManager {
 	 * @param on
 	 */
 	public void set(DimmableDevice device, boolean on) {
+		logger.trace(device + ", " + on);
 		addAction(new DeviceAction(device, on, retries));
 	}
 
@@ -130,6 +134,7 @@ public class DeviceManager {
 	 * @param up
 	 */
 	public void set(UpDownDevice device, boolean up) {
+		logger.trace(device + ", " + up);
 		addAction(new DeviceAction(device, up, retries));
 	}
 
@@ -138,6 +143,7 @@ public class DeviceManager {
 	 * @param device
 	 */
 	public void stop(UpDownDevice device) {
+		logger.trace(device);
 		addAction(new DeviceAction(device, null, retries));
 	}
 
@@ -146,6 +152,7 @@ public class DeviceManager {
 	 * @param device
 	 */
 	public void bell(BellDevice device) {
+		logger.trace(device);
 		addAction(new DeviceAction(device, null, 0));
 	}
 
@@ -154,6 +161,7 @@ public class DeviceManager {
 	 * @param device
 	 */
 	public void execute(SceneDevice device) {
+		logger.trace(device);
 		addAction(new DeviceAction(device, null, 0));
 	}
 
@@ -163,6 +171,7 @@ public class DeviceManager {
 	 */
 	protected void addAction(DeviceAction action) {
 		synchronized (actions) {
+			logger.trace("Add action: " + action);
 			actions.add(action);
 			actions.notify();
 		}
@@ -175,7 +184,7 @@ public class DeviceManager {
 	 *
 	 */
 	private class DeviceActionThread extends Thread {
-		private static final int ACTION_DELAY = 250;
+		private static final int ACTION_DELAY = 500;
 
 		@Override
 		public void run() {
@@ -217,6 +226,7 @@ public class DeviceManager {
 
 				// Do
 				try {
+					logger.trace("Handle device action: " + action);
 					DeviceActionHandler.handleDeviceAction(action);
 				} catch (Exception e) {
 					logger.error("Device Action failed", e);
@@ -229,7 +239,8 @@ public class DeviceManager {
 
 					// Add
 					synchronized (actions) {
-						actions.add(action);
+						if (!actions.contains(action))
+							actions.add(action);
 					}
 				}
 			}

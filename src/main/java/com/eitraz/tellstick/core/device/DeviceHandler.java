@@ -93,10 +93,19 @@ public class DeviceHandler {
 	 * @throws DeviceNotSupportedException
 	 */
 	public List<Device> getDevices() {
+		if (logger.isTraceEnabled())
+			logger.trace("Get devices");
+
 		List<Device> devices = new ArrayList<Device>();
+
+		if (logger.isTraceEnabled())
+			logger.trace("Get number of devices");
 
 		int numDevices = library.tdGetNumberOfDevices();
 		for (int i = 0; i < numDevices; i++) {
+			if (logger.isTraceEnabled())
+				logger.trace("Get device id " + i);
+
 			int deviceId = library.tdGetDeviceId(i);
 
 			try {
@@ -131,7 +140,14 @@ public class DeviceHandler {
 	 * @throws DeviceNotSupportedException
 	 */
 	protected Device createDevice(int deviceId) throws DeviceNotSupportedException {
+		if (logger.isTraceEnabled())
+			logger.trace("Create device " + deviceId);
+
 		int methods = library.tdMethods(deviceId, getSupportedMethods());
+
+		if (logger.isTraceEnabled())
+			logger.trace("Get device type " + deviceId);
+
 		int type = library.tdGetDeviceType(deviceId);
 
 		// Group Device
@@ -177,6 +193,9 @@ public class DeviceHandler {
 	 * @throws DeviceNotSupportedException
 	 */
 	public Device createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
+		if (logger.isTraceEnabled())
+			logger.trace("Create add device");
+
 		int deviceId = library.tdAddDevice();
 
 		// Unable to create device
@@ -280,8 +299,10 @@ public class DeviceHandler {
 		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDDeviceEvent#event(int, int, java.lang.String, int, com.sun.jna.Pointer)
 		 */
 		@Override
-		public void event(int deviceId, int method, Pointer dataPointer, int callbackId, Pointer context) {
-			String data = dataPointer.getString(0);
+		public void event(int deviceId, int method, String data, int callbackId, Pointer context) {
+			logger.trace("Event: " + deviceId + ", " + method);
+
+			//			String data = dataPointer.getString(0);
 
 			// Don't fire event to often
 			if (!timeoutHandler.isReady(deviceId + "," + method + "," + data))
@@ -311,6 +332,8 @@ public class DeviceHandler {
 		 */
 		@Override
 		public void event(int deviceId, int changeEvent, int changeType, int callbackId, Pointer context) {
+			logger.trace("Event: " + deviceId);
+
 			// Don't fire event to often
 			if (!timeoutHandler.isReady(deviceId + "," + changeEvent + "," + changeType))
 				return;

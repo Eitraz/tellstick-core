@@ -25,18 +25,39 @@ public abstract class Device implements Comparable<Device> {
 		library = deviceHandler.getLibrary();
 
 		// Name
+		if (logger.isTraceEnabled())
+			logger.trace("Get device name " + deviceId);
+
 		Pointer namePointer = library.tdGetName(deviceId);
 		name = namePointer.getString(0);
+
+		if (logger.isTraceEnabled())
+			logger.trace("Release name " + deviceId);
+
 		library.tdReleaseString(namePointer);
 
 		// Model
+		if (logger.isTraceEnabled())
+			logger.trace("Get model " + deviceId);
+
 		Pointer modelPointer = library.tdGetModel(deviceId);
 		model = modelPointer.getString(0);
+
+		if (logger.isTraceEnabled())
+			logger.trace("Release model " + deviceId);
+
 		library.tdReleaseString(modelPointer);
 
 		// Protocol
+		if (logger.isTraceEnabled())
+			logger.trace("Get protocol " + deviceId);
+
 		Pointer protocolPointer = library.tdGetProtocol(deviceId);
 		protocol = protocolPointer.getString(0);
+
+		if (logger.isTraceEnabled())
+			logger.trace("Release protocol " + deviceId);
+
 		library.tdReleaseString(protocolPointer);
 
 		deviceType = library.tdGetDeviceType(deviceId);
@@ -82,6 +103,9 @@ public abstract class Device implements Comparable<Device> {
 	 * @return status
 	 */
 	public int getStatus() {
+		if (logger.isTraceEnabled())
+			logger.trace("Get status " + deviceId);
+
 		return library.tdLastSentCommand(deviceId, deviceHandler.getSupportedMethods());
 	}
 

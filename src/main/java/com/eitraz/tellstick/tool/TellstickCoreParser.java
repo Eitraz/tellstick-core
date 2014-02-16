@@ -17,30 +17,30 @@ import java.util.regex.Pattern;
 /**
  * Parse the telldus-core.h and output TelldusCoreLibrary.java Interface
  */
-public class TelldusCoreParser {
+public class TellstickCoreParser {
 	private static final Pattern DEFINE_PATTERN = Pattern.compile("#define ([\\w_]+?)\\s*?(-??[\\d]+?)");
 	private static final Pattern EVENT_PATTERN = Pattern.compile("typedef void \\(WINAPI \\*(\\w+?)\\)\\s*?\\((.*?)\\);");
 	private static final Pattern METHOD_PATTERN = Pattern.compile("TELLSTICK_API (.+?) WINAPI (\\w*?)\\((.*?)\\);");
 
 	private static final Map<String, String> ARGUMENT_REPLACE_MAP = new LinkedHashMap<String, String>();
 	static {
-		ARGUMENT_REPLACE_MAP.put("const char *", "Pointer ");
-		ARGUMENT_REPLACE_MAP.put("const char* ", "Pointer ");
+		ARGUMENT_REPLACE_MAP.put("const char *", "String ");
+		ARGUMENT_REPLACE_MAP.put("const char* ", "String ");
 		ARGUMENT_REPLACE_MAP.put("void *", "Pointer ");
 		ARGUMENT_REPLACE_MAP.put("void* ", "Pointer ");
 		ARGUMENT_REPLACE_MAP.put("char *", "Pointer ");
 		ARGUMENT_REPLACE_MAP.put("char* ", "Pointer ");
 		ARGUMENT_REPLACE_MAP.put("unsigned char ", "int ");
 		ARGUMENT_REPLACE_MAP.put("bool ", "boolean ");
-		ARGUMENT_REPLACE_MAP.put("int *", "boolean ");
-		ARGUMENT_REPLACE_MAP.put("int* ", "boolean ");
+		ARGUMENT_REPLACE_MAP.put("int *", "IntByReference ");
+		ARGUMENT_REPLACE_MAP.put("int* ", "IntByReference ");
 	}
 
 	private final List<String> defines = new ArrayList<String>();
 	private final List<String> events = new ArrayList<String>();
 	private final List<String> methods = new ArrayList<String>();
 
-	public TelldusCoreParser(File telldusCoreFile, File outputFile) throws IOException {
+	public TellstickCoreParser(File telldusCoreFile, File outputFile) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(telldusCoreFile));
 
 		String line;
@@ -80,11 +80,12 @@ public class TelldusCoreParser {
 		writer.println("import com.sun.jna.Callback;");
 		writer.println("import com.sun.jna.Library;");
 		writer.println("import com.sun.jna.Pointer;");
+		writer.println("import com.sun.jna.ptr.IntByReference;");
 		writer.println("");
 		writer.println("/**");
 		writer.println(" * Generated: " + new Date().toString());
 		writer.println(" */");
-		writer.println("public interface TelldusCoreLibrary extends Library {");
+		writer.println("public interface TellstickCoreLibrary extends Library {");
 
 		writer.println("");
 		writer.println("\t/**");
@@ -162,9 +163,9 @@ public class TelldusCoreParser {
 
 	public static void main(String[] args) {
 		try {
-			new TelldusCoreParser(
+			new TellstickCoreParser(
 					new File("src/main/resources/telldus-core.h"),
-					new File("src/main/java/com/eitraz/tellstick/core/TelldusCoreLibrary.java")
+					new File("src/main/java/com/eitraz/tellstick/core/TellstickCoreLibrary.java")
 					);
 		} catch (IOException e) {
 			e.printStackTrace();

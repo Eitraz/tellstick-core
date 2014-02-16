@@ -4,11 +4,12 @@ import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 /**
- * Generated: Thu Dec 19 22:03:07 CET 2013
+ * Generated: Sat Sep 28 16:21:16 CEST 2013
  */
-public interface TellstickCoreLibrary extends Library {
+public interface CopyOfTellstickCoreLibrary extends Library {
 
 	/**
 	 * Defines
@@ -263,7 +264,7 @@ public interface TellstickCoreLibrary extends Library {
 	public Pointer tdGetName(int intDeviceId);
 
 	// TELLSTICK_API bool WINAPI tdSetName(int intDeviceId, const char* chNewName);
-	public boolean tdSetName(int intDeviceId, String chNewName);
+	public boolean tdSetName(int intDeviceId, String strNewName);
 
 	// TELLSTICK_API char * WINAPI tdGetProtocol(int intDeviceId);
 	public Pointer tdGetProtocol(int intDeviceId);
@@ -275,7 +276,7 @@ public interface TellstickCoreLibrary extends Library {
 	public Pointer tdGetModel(int intDeviceId);
 
 	// TELLSTICK_API bool WINAPI tdSetModel(int intDeviceId, const char *intModel);
-	public boolean tdSetModel(int intDeviceId, String intModel);
+	public boolean tdSetModel(int intDeviceId, String strModel);
 
 	// TELLSTICK_API char * WINAPI tdGetDeviceParameter(int intDeviceId, const char *strName, const char *defaultValue);
 	public Pointer tdGetDeviceParameter(int intDeviceId, String strName, String defaultValue);
@@ -302,10 +303,10 @@ public interface TellstickCoreLibrary extends Library {
 	public int tdSensor(Pointer protocol, int protocolLen, Pointer model, int modelLen, IntByReference id, IntByReference dataTypes);
 
 	// TELLSTICK_API int WINAPI tdSensorValue(const char *protocol, const char *model, int id, int dataType, char *value, int len, int *timestamp);
-	public int tdSensorValue(String protocol, String model, int id, int dataType, Pointer value, int len, IntByReference timestamp);
+	public int tdSensorValue(String protocol, String model, int id, int dataType, Pointer value, int len, LongByReference timestamp);
 
 	// TELLSTICK_API int WINAPI tdController(int *controllerId, int *controllerType, char *name, int nameLen, int *available);
-	public int tdController(IntByReference controllerId, IntByReference controllerType, Pointer name, int nameLen, IntByReference available);
+	public int tdController(boolean controllerId, boolean controllerType, Pointer name, int nameLen, boolean available);
 
 	// TELLSTICK_API int WINAPI tdControllerValue(int controllerId, const char *name, char *value, int valueLen);
 	public int tdControllerValue(int controllerId, String name, Pointer value, int valueLen);
