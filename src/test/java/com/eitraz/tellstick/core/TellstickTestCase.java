@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.eitraz.tellstick.core.device.Device;
 import com.eitraz.tellstick.core.device.DeviceHandler;
 import com.eitraz.tellstick.manager.TellstickDeviceManager;
 
+@Ignore
 public class TellstickTestCase {
 	@Test
 	public void testGetDevices() {
