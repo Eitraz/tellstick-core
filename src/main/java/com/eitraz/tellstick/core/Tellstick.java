@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import com.eitraz.tellstick.core.device.DeviceHandler;
 import com.eitraz.tellstick.core.rawdevice.RawDeviceHandler;
+import com.eitraz.tellstick.core.sensor.SensorHandler;
 import com.sun.jna.Native;
 
 public class Tellstick {
@@ -23,12 +24,11 @@ public class Tellstick {
 			TellstickCoreLibrary.TELLSTICK_TEMPERATURE |
 			TellstickCoreLibrary.TELLSTICK_HUMIDITY;
 
-
 	private TellstickCoreLibrary library;
 
 	private DeviceHandler deviceHandler;
 	private RawDeviceHandler rawDeviceHandler;
-	//	private SensorHandler sensorHandler;
+	private SensorHandler sensorHandler;
 	//	private ControllerHandler controllerHandler;
 
 	public Tellstick() {
@@ -58,8 +58,8 @@ public class Tellstick {
 		rawDeviceHandler.start();
 
 		// Sensor Handler
-		//		sensorHandler = new SensorHandler(library, SUPPORTED_SENSOR_DATA_TYPES);
-		//		sensorHandler.start();
+		sensorHandler = new SensorHandler(library, SUPPORTED_SENSOR_DATA_TYPES);
+		sensorHandler.start();
 
 		// Controller Handler
 		//		controllerHandler = new ControllerHandler(library);
@@ -75,8 +75,8 @@ public class Tellstick {
 		//		controllerHandler.stop();
 
 		// Stop Sensor handler
-		//		if (sensorHandler != null)
-		//			sensorHandler.stop();
+		if (sensorHandler != null)
+			sensorHandler.stop();
 
 		// Stop Raw Device Handler
 		if (rawDeviceHandler != null)
@@ -157,16 +157,16 @@ public class Tellstick {
 	/**
 	 * @return the sensorHandler
 	 */
-	//	public SensorHandler getSensorHandler() {
-	//		return sensorHandler;
-	//	}
+	public SensorHandler getSensorHandler() {
+		return sensorHandler;
+	}
 
 	/**
 	 * @param sensorHandler the sensorHandler to set
 	 */
-	//	public void setSensorHandler(SensorHandler sensorHandler) {
-	//		this.sensorHandler = sensorHandler;
-	//	}
+	public void setSensorHandler(SensorHandler sensorHandler) {
+		this.sensorHandler = sensorHandler;
+	}
 
 
 }
