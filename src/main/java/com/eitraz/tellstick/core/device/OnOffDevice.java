@@ -4,42 +4,43 @@ import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
 public class OnOffDevice extends Device {
 
-	public OnOffDevice(DeviceHandler deviceHandler, int deviceId) {
-		super(deviceHandler, deviceId);
-	}
+    public OnOffDevice(DeviceHandler deviceHandler, int deviceId) {
+        super(deviceHandler, deviceId);
+    }
 
-	/**
-	 * Turn on
-	 * @throws DeviceException
-	 */
-	public void on() throws DeviceException {
-		logger.debug("ON " + toString());
+    /**
+     * Turn on
+     *
+     * @throws DeviceException
+     */
+    public void on() throws DeviceException {
+        logger.debug("ON " + toString());
 
-		int status = getLibrary().tdTurnOn(getDeviceId());
+        int status = getLibrary().tdTurnOn(getDeviceId());
 
-		if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-			throw new DeviceException(this, status);
-	}
+        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
+            throw new DeviceException(this, status);
+    }
 
-	/**
-	 * Turn Off
-	 * @throws DeviceException
-	 */
-	public void off() throws DeviceException {
-		logger.debug("OFF " + toString());
+    /**
+     * Turn Off
+     *
+     * @throws DeviceException
+     */
+    public void off() throws DeviceException {
+        logger.debug("OFF " + toString());
 
-		int status = getLibrary().tdTurnOff(getDeviceId());
+        int status = getLibrary().tdTurnOff(getDeviceId());
 
-		if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-			throw new DeviceException(this, status);
-	}
+        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
+            throw new DeviceException(this, status);
+    }
 
-	/**
-	 * Is On
-	 * @return
-	 */
-	public boolean isOn() {
-		return (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
-	}
+    /**
+     * @return true if device is on
+     */
+    public boolean isOn() {
+        return (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
+    }
 
 }
