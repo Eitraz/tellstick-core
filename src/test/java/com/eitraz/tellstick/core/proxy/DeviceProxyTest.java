@@ -1,7 +1,7 @@
-package com.eitraz.tellstick.core;
+package com.eitraz.tellstick.core.proxy;
 
+import com.eitraz.tellstick.core.TestDevice;
 import com.eitraz.tellstick.core.device.OnOffDevice;
-import com.eitraz.tellstick.core.proxy.DeviceProxy;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
