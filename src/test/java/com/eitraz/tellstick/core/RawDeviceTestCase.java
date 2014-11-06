@@ -1,22 +1,18 @@
 package com.eitraz.tellstick.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import com.eitraz.tellstick.core.rawdevice.RawCommandDevice;
+import com.eitraz.tellstick.core.rawdevice.RawDevice;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
-import com.eitraz.tellstick.core.rawdevice.RawCommandDevice;
-import com.eitraz.tellstick.core.rawdevice.RawDevice;
+import static org.junit.Assert.*;
 
 public class RawDeviceTestCase {
     @Test
     public void rawDeviceHashTest() {
-        Map<String, String> ap = new HashMap<String, String>();
+        Map<String, String> ap = new HashMap<>();
 
         ap.put("house", "h");
         ap.put("unit", "u");
@@ -25,7 +21,7 @@ public class RawDeviceTestCase {
 
         RawDevice a = new RawCommandDevice("a", "b", "c", "d", ap);
 
-        Map<String, String> bp = new HashMap<String, String>();
+        Map<String, String> bp = new HashMap<>();
 
         RawDevice b = new RawCommandDevice("a", "b", "c", "d", bp);
         assertFalse(a.equals(b));
@@ -71,9 +67,9 @@ public class RawDeviceTestCase {
 
     @Test
     public void testRawDeviceHashMap() {
-        Map<RawDevice, String> map = new HashMap<RawDevice, String>();
+        Map<RawDevice, String> map = new HashMap<>();
 
-        Map<String, String> ap = new HashMap<String, String>();
+        Map<String, String> ap = new HashMap<>();
 
         ap.put("house", "h");
         ap.put("unit", "u");
@@ -85,13 +81,13 @@ public class RawDeviceTestCase {
 
         assertEquals(1, map.size());
 
-        Map<String, String> bp = new HashMap<String, String>();
+        Map<String, String> bp = new HashMap<>();
 
         map.put(new RawDevice("a", "b", "c", bp), "1");
 
         assertEquals(2, map.size());
 
-        bp = new HashMap<String, String>();
+        bp = new HashMap<>();
         bp.put("house", "h");
         bp.put("unit", "u");
         bp.put("code", "c");
