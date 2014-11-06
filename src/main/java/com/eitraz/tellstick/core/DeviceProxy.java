@@ -91,11 +91,12 @@ public final class DeviceProxy {
 
     /**
      * @param deviceMethodCall method call
+     * @param override         if true, override any existing DeviceMethodCall with the same device ID
      */
-    private void queue(DeviceMethodCall deviceMethodCall) {
+    private void queue(DeviceMethodCall deviceMethodCall, boolean override) {
         synchronized (deviceMethodCallsMap) {
             // Add Device Method Call
-            if (!deviceMethodCallsMap.containsKey(deviceMethodCall.getDeviceId())) {
+            if (override || !deviceMethodCallsMap.containsKey(deviceMethodCall.getDeviceId())) {
                 deviceMethodCallsMap.put(deviceMethodCall.getDeviceId(), deviceMethodCall);
             }
         }
@@ -119,7 +120,7 @@ public final class DeviceProxy {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 // Do tries
                 if (method.getReturnType().equals(Void.TYPE)) {
-                    queue(new DeviceMethodCall(device, method, args));
+                    queue(new DeviceMethodCall(device, method, args), true);
                     return Void.TYPE;
                 }
                 // Call once and return result
@@ -166,7 +167,7 @@ public final class DeviceProxy {
 
                     // Add for new call try
                     if (deviceMethodCall.getTries() < tries) {
-                        queue(deviceMethodCall);
+                        queue(deviceMethodCall, false);
                     }
 
                     if (logger.isTraceEnabled())
