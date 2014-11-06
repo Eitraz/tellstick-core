@@ -1,5 +1,13 @@
 package com.eitraz.tellstick.core.device;
 
+import com.eitraz.tellstick.core.TellstickCoreLibrary;
+import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceChangeEvent;
+import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceEvent;
+import com.eitraz.tellstick.core.TellstickException;
+import com.eitraz.tellstick.core.util.TimeoutHandler;
+import com.sun.jna.Pointer;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,15 +15,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import org.apache.log4j.Logger;
-
-import com.eitraz.tellstick.core.TellstickCoreLibrary;
-import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceChangeEvent;
-import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceEvent;
-import com.eitraz.tellstick.core.TellstickException;
-import com.eitraz.tellstick.core.util.TimeoutHandler;
-import com.sun.jna.Pointer;
 
 public class DeviceHandler {
     private static final Logger logger = Logger.getLogger(DeviceHandler.class);
@@ -149,36 +148,47 @@ public class DeviceHandler {
         int type = library.tdGetDeviceType(deviceId);
 
         // Group Device
-        if (type == TellstickCoreLibrary.TELLSTICK_TYPE_GROUP)
+        if (type == TellstickCoreLibrary.TELLSTICK_TYPE_GROUP) {
             return new GroupDevice(this, deviceId);
+        }
 
-            // Scene Device
-        else if (type == TellstickCoreLibrary.TELLSTICK_TYPE_SCENE)
+        // Scene Device
+        else if (type == TellstickCoreLibrary.TELLSTICK_TYPE_SCENE) {
             return new SceneDevice(this, deviceId);
+        }
 
-            // Bell Device
-        else if ((methods & TellstickCoreLibrary.TELLSTICK_BELL) > 0)
+        // Bell Device
+        else if ((methods & TellstickCoreLibrary.TELLSTICK_BELL) > 0) {
             return new BellDevice(this, deviceId);
+        }
 
-            // Dimmable Device
-        else if ((methods & TellstickCoreLibrary.TELLSTICK_DIM) > 0)
+        // Dimmable Device
+        else if ((methods & TellstickCoreLibrary.TELLSTICK_DIM) > 0) {
             return new DimmableDevice(this, deviceId);
+        }
 
-            // Up / Down Device
-        else if ((methods & TellstickCoreLibrary.TELLSTICK_UP) > 0 && (methods & TellstickCoreLibrary.TELLSTICK_DOWN) > 0 && (methods & TellstickCoreLibrary.TELLSTICK_STOP) > 0)
+        // Up / Down Device
+        else if ((methods & TellstickCoreLibrary.TELLSTICK_UP) > 0 &&
+                (methods & TellstickCoreLibrary.TELLSTICK_DOWN) > 0 &&
+                (methods & TellstickCoreLibrary.TELLSTICK_STOP) > 0) {
             return new UpDownDevice(this, deviceId);
+        }
 
-            // On / Off Device
-        else if ((methods & TellstickCoreLibrary.TELLSTICK_TURNON) > 0 && (methods & TellstickCoreLibrary.TELLSTICK_TURNOFF) > 0)
+        // On / Off Device
+        else if ((methods & TellstickCoreLibrary.TELLSTICK_TURNON) > 0 &&
+                (methods & TellstickCoreLibrary.TELLSTICK_TURNOFF) > 0) {
             return new OnOffDevice(this, deviceId);
+        }
 
-            // Scene Device
-        else if ((methods & TellstickCoreLibrary.TELLSTICK_EXECUTE) > 0)
+        // Scene Device
+        else if ((methods & TellstickCoreLibrary.TELLSTICK_EXECUTE) > 0) {
             return new SceneDevice(this, deviceId);
+        }
 
-            // Not supported
-        else
+        // Not supported
+        else {
             throw new DeviceNotSupportedException("The device is not supported");
+        }
     }
 
     /**

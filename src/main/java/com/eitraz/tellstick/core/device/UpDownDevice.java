@@ -2,7 +2,7 @@ package com.eitraz.tellstick.core.device;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
-public class UpDownDevice extends Device {
+public class UpDownDevice extends AbstractDevice {
 
 	public UpDownDevice(DeviceHandler deviceHandler, int deviceId) {
 		super(deviceHandler, deviceId);

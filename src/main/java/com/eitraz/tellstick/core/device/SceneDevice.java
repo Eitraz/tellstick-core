@@ -3,7 +3,7 @@ package com.eitraz.tellstick.core.device;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
 
-public class SceneDevice extends Device {
+public class SceneDevice extends AbstractDevice {
 
     public SceneDevice(DeviceHandler deviceHandler, int deviceId) {
         super(deviceHandler, deviceId);

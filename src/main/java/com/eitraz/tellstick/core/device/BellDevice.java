@@ -2,7 +2,7 @@ package com.eitraz.tellstick.core.device;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
-public class BellDevice extends Device {
+public class BellDevice extends AbstractDevice {
 
     public BellDevice(DeviceHandler deviceHandler, int deviceId) {
         super(deviceHandler, deviceId);

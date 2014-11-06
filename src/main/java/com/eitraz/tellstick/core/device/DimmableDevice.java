@@ -2,7 +2,7 @@ package com.eitraz.tellstick.core.device;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
-public class DimmableDevice extends Device {
+public class DimmableDevice extends AbstractDevice {
 
     public DimmableDevice(DeviceHandler deviceHandler, int deviceId) {
         super(deviceHandler, deviceId);

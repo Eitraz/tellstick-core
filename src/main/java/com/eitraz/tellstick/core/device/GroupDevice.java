@@ -6,7 +6,7 @@ import java.util.List;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
 
-public class GroupDevice extends Device {
+public class GroupDevice extends AbstractDevice {
     private final List<Device> devices = new ArrayList<>();
 
     public GroupDevice(DeviceHandler deviceHandler, int deviceId) {

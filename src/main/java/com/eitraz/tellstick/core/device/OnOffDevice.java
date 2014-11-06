@@ -2,7 +2,7 @@ package com.eitraz.tellstick.core.device;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
-public class OnOffDevice extends Device {
+public class OnOffDevice extends AbstractDevice {
 
     public OnOffDevice(DeviceHandler deviceHandler, int deviceId) {
         super(deviceHandler, deviceId);
