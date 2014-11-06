@@ -1,25 +1,15 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.TellstickCoreLibrary;
-
-public class BellDevice extends AbstractDevice {
-
-    public BellDevice(DeviceHandler deviceHandler, int deviceId) {
-        super(deviceHandler, deviceId);
-    }
-
+/**
+ * Bell Device
+ * <p/>
+ * Created by Petter Alstermark on 2014-11-06.
+ */
+public interface BellDevice extends Device {
     /**
      * Bell
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void bell() throws DeviceException {
-        logger.debug("BELL " + toString());
-
-        int status = getLibrary().tdBell(getDeviceId());
-
-        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-            throw new DeviceException(this, status);
-    }
-
+    void bell() throws DeviceException;
 }

@@ -1,48 +1,29 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.TellstickCoreLibrary;
-
-public class DimmableDevice extends AbstractDevice {
-
-    public DimmableDevice(DeviceHandler deviceHandler, int deviceId) {
-        super(deviceHandler, deviceId);
-    }
-
-    public void dim(int level) throws DeviceException {
-        logger.debug("DIM " + level + " " + toString());
-
-        if (level < 0 || level > 255)
-            throw new IllegalArgumentException("Dim level must be between 0 and 255.");
-
-        int status = getLibrary().tdDim(getDeviceId(), level);
-        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-            throw new DeviceException(this, status);
-    }
+/**
+ * Dimmable Device
+ * <p/>
+ * Created by Petter Alstermark on 2014-11-06.
+ */
+public interface DimmableDevice extends Device {
+    void dim(int level) throws DeviceException;
 
     /**
      * On (max level)
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void on() throws DeviceException {
-        dim(255);
-    }
+    void on() throws DeviceException;
 
     /**
      * Off (min level)
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void off() throws DeviceException {
-        dim(0);
-    }
+    void off() throws DeviceException;
 
     /**
      * @return true if device is on or dim level is greater than zero
      */
-    public boolean isOn() {
-        boolean isOn = (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
-        return isOn || ((TellstickCoreLibrary.TELLSTICK_DIM & getStatus()) > 0);
-    }
-
+    boolean isOn();
 }

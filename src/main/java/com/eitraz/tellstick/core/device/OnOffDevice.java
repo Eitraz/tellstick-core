@@ -1,46 +1,27 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.TellstickCoreLibrary;
-
-public class OnOffDevice extends AbstractDevice {
-
-    public OnOffDevice(DeviceHandler deviceHandler, int deviceId) {
-        super(deviceHandler, deviceId);
-    }
-
+/**
+ * On/Off Device
+ * <p/>
+ * Created by Petter Alstermark on 2014-11-06.
+ */
+public interface OnOffDevice extends Device {
     /**
      * Turn on
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void on() throws DeviceException {
-        logger.debug("ON " + toString());
-
-        int status = getLibrary().tdTurnOn(getDeviceId());
-
-        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-            throw new DeviceException(this, status);
-    }
+    void on() throws DeviceException;
 
     /**
      * Turn Off
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void off() throws DeviceException {
-        logger.debug("OFF " + toString());
-
-        int status = getLibrary().tdTurnOff(getDeviceId());
-
-        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-            throw new DeviceException(this, status);
-    }
+    void off() throws DeviceException;
 
     /**
      * @return true if device is on
      */
-    public boolean isOn() {
-        return (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
-    }
-
+    boolean isOn();
 }

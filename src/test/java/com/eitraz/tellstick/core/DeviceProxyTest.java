@@ -1,5 +1,6 @@
 package com.eitraz.tellstick.core;
 
+import com.eitraz.tellstick.core.device.OnOffDevice;
 import com.eitraz.tellstick.core.proxy.DeviceProxy;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class DeviceProxyTest {
 
         DeviceProxy.getInstance().setTries(3);
 
-        DeviceProxy.proxy(device).count();
+        DeviceProxy.proxy(device, OnOffDevice.class).on();
 
         await().until(new Callable<Integer>() {
             @Override

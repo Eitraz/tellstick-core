@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -112,8 +113,8 @@ public final class DeviceProxy {
      * @return proxied device
      */
     @SuppressWarnings("unchecked")
-    public <T extends Device> T doProxy(final T device) {
-        return (T) ProxyFactory.newProxyInstance(device.getClass(), new InvocationHandler() {
+    public <T extends Device> T doProxy(final T device, Class<T> targetClass) {
+        return (T) Proxy.newProxyInstance(device.getClass().getClassLoader(), new Class<?>[]{targetClass}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 // Do tries
@@ -134,8 +135,8 @@ public final class DeviceProxy {
      * @param <T>    device type
      * @return proxied device
      */
-    public static <T extends Device> T proxy(T device) {
-        return getInstance().doProxy(device);
+    public static <T extends Device> T proxy(T device, Class<T> targetClass) {
+        return getInstance().doProxy(device, targetClass);
     }
 
     /**
@@ -211,7 +212,7 @@ public final class DeviceProxy {
             tries++;
 
             if (logger.isDebugEnabled())
-                logger.debug(String.format("call #%d to '%s' (%d) method '%s'", tries, device.getName(), device.getDeviceId(), method.getName()));
+                logger.debug(String.format("call nr %d to device '%s' (#%d), method '%s'", tries, device.getName(), device.getDeviceId(), method.getName()));
 
             method.invoke(device, args);
         }

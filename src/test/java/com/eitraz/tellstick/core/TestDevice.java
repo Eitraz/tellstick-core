@@ -1,12 +1,14 @@
 package com.eitraz.tellstick.core;
 
 import com.eitraz.tellstick.core.device.Device;
+import com.eitraz.tellstick.core.device.DeviceException;
 import com.eitraz.tellstick.core.device.DeviceHandler;
+import com.eitraz.tellstick.core.device.OnOffDevice;
 
 /**
  * Test Device
  */
-public class TestDevice implements Device {
+public class TestDevice implements OnOffDevice {
     private int counter;
     private int deviceId;
     private String name;
@@ -73,10 +75,18 @@ public class TestDevice implements Device {
         return counter;
     }
 
-    /**
-     * Test method
-     */
-    public void count() {
+    @Override
+    public void on() throws DeviceException {
         counter++;
+    }
+
+    @Override
+    public void off() throws DeviceException {
+        counter--;
+    }
+
+    @Override
+    public boolean isOn() {
+        return false;
     }
 }

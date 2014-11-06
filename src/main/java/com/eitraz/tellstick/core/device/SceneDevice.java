@@ -1,26 +1,15 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.TellstickCoreLibrary;
-
-
-public class SceneDevice extends AbstractDevice {
-
-    public SceneDevice(DeviceHandler deviceHandler, int deviceId) {
-        super(deviceHandler, deviceId);
-    }
-
+/**
+ * Scene Device
+ * <p/>
+ * Created by Petter Alstermark on 2014-11-06.
+ */
+public interface SceneDevice extends Device {
     /**
      * Execute
      *
-     * @throws DeviceException
+     * @throws com.eitraz.tellstick.core.device.DeviceException
      */
-    public void execute() throws DeviceException {
-        logger.debug("EXECUTE " + toString());
-
-        int status = getLibrary().tdExecute(getDeviceId());
-
-        if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
-            throw new DeviceException(this, status);
-    }
-
+    void execute() throws DeviceException;
 }
