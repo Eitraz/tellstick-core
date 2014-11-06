@@ -20,14 +20,21 @@ public class Tellstick {
                     TellstickCoreLibrary.TELLSTICK_EXECUTE |
                     TellstickCoreLibrary.TELLSTICK_STOP;
 
-    private static final int SUPPORTED_SENSOR_DATA_TYPES = TellstickCoreLibrary.TELLSTICK_TEMPERATURE | TellstickCoreLibrary.TELLSTICK_HUMIDITY;
+    private static final int SUPPORTED_SENSOR_DATA_TYPES =
+            TellstickCoreLibrary.TELLSTICK_TEMPERATURE |
+                    TellstickCoreLibrary.TELLSTICK_HUMIDITY |
+                    TellstickCoreLibrary.TELLSTICK_RAINRATE |
+                    TellstickCoreLibrary.TELLSTICK_RAINTOTAL |
+                    TellstickCoreLibrary.TELLSTICK_WINDDIRECTION |
+                    TellstickCoreLibrary.TELLSTICK_WINDAVERAGE |
+                    TellstickCoreLibrary.TELLSTICK_WINDGUST;
 
     private TellstickCoreLibrary library;
 
     private DeviceHandler deviceHandler;
     private RawDeviceHandler rawDeviceHandler;
     private SensorHandler sensorHandler;
-    //	private ControllerHandler controllerHandler;
+    // private ControllerHandler controllerHandler;
 
     public Tellstick() {
     }
@@ -60,8 +67,8 @@ public class Tellstick {
         sensorHandler.start();
 
         // Controller Handler
-        //		controllerHandler = new ControllerHandler(library);
-        //		controllerHandler.start();
+        // ontrollerHandler = new ControllerHandler(library);
+        // controllerHandler.start();
     }
 
     /**
@@ -70,22 +77,26 @@ public class Tellstick {
     public void stop() {
         // Stop Controller Handler
         // if (controllerHandler != null)
-        //		controllerHandler.stop();
+        // controllerHandler.stop();
 
         // Stop Sensor handler
         if (sensorHandler != null)
             sensorHandler.stop();
+        sensorHandler = null;
 
         // Stop Raw Device Handler
         if (rawDeviceHandler != null)
             rawDeviceHandler.stop();
+        rawDeviceHandler = null;
 
         // Stop Device Handler
         if (deviceHandler != null)
             deviceHandler.stop();
+        deviceHandler = null;
 
         // Stop
         library.tdClose();
+        library = null;
     }
 
     /**
