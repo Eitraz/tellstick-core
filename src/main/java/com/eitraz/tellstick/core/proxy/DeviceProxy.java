@@ -1,4 +1,4 @@
-package com.eitraz.tellstick.core;
+package com.eitraz.tellstick.core.proxy;
 
 import com.eitraz.tellstick.core.device.Device;
 import org.apache.log4j.Logger;
@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -108,14 +107,13 @@ public final class DeviceProxy {
     }
 
     /**
-     * @param device      device
-     * @param deviceClass device class
-     * @param <T>         device type
+     * @param device device
+     * @param <T>    device type
      * @return proxied device
      */
     @SuppressWarnings("unchecked")
-    public <T extends Device> T doProxy(final T device, Class<T> deviceClass) {
-        return (T) Proxy.newProxyInstance(DeviceProxy.class.getClassLoader(), new Class[]{deviceClass}, new InvocationHandler() {
+    public <T extends Device> T doProxy(final T device) {
+        return (T) ProxyFactory.newProxyInstance(device.getClass(), new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 // Do tries
@@ -132,13 +130,12 @@ public final class DeviceProxy {
     }
 
     /**
-     * @param device      device
-     * @param deviceClass device class
-     * @param <T>         device type
+     * @param device device
+     * @param <T>    device type
      * @return proxied device
      */
-    public static <T extends Device> T proxy(T device, Class<T> deviceClass) {
-        return getInstance().doProxy(device, deviceClass);
+    public static <T extends Device> T proxy(T device) {
+        return getInstance().doProxy(device);
     }
 
     /**
