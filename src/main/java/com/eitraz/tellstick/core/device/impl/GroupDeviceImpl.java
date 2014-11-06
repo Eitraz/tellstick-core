@@ -49,11 +49,11 @@ public class GroupDeviceImpl extends AbstractDevice implements GroupDevice {
         for (Device device : getDevices()) {
             try {
                 // On/off device
-                if (device instanceof OnOffDeviceImpl) {
+                if (device instanceof OnOffDevice) {
                     ((OnOffDevice) device).on();
                 }
                 // Dimmable device
-                else if (device instanceof DimmableDeviceImpl) {
+                else if (device instanceof DimmableDevice) {
                     ((DimmableDevice) device).on();
                 }
             } catch (DeviceException e) {
@@ -69,11 +69,11 @@ public class GroupDeviceImpl extends AbstractDevice implements GroupDevice {
         for (Device device : getDevices()) {
             try {
                 // On/off device
-                if (device instanceof OnOffDeviceImpl) {
+                if (device instanceof OnOffDevice) {
                     ((OnOffDevice) device).off();
                 }
                 // Dimmable device
-                else if (device instanceof DimmableDeviceImpl) {
+                else if (device instanceof DimmableDevice) {
                     ((DimmableDevice) device).off();
                 }
             } catch (DeviceException e) {
