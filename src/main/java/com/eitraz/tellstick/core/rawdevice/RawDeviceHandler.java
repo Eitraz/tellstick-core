@@ -8,7 +8,6 @@ import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -103,42 +102,16 @@ public class RawDeviceHandler {
     }
 
     /**
-     * Get Raw Device
-     *
-     * @param parameters parameters
-     * @return raw device
-     */
-    private RawDevice getRawDevice(Map<String, String> parameters) {
-        String _class = parameters.remove(_CLASS);
-        String protocol = parameters.remove(PROTOCOL);
-        String model = parameters.remove(MODEL);
-
-        // Command
-        if (COMMAND.equalsIgnoreCase(_class)) {
-            String method = parameters.get(METHOD);
-            return new RawCommandDevice(_class, protocol, model, method, parameters);
-        }
-        // Sensor
-        else if (SENSOR.equalsIgnoreCase(_class)) {
-            String id = parameters.get(ID);
-            return new RawSensorDevice(_class, protocol, model, id, parameters);
-        }
-        // Other
-        else
-            return new RawDevice(_class, protocol, model, parameters);
-    }
-
-    /**
      * Fire Raw Device Event
      *
-     * @param device device
+     * @param parameters parameters
      */
-    private void fireRawDeviceEvent(final RawDevice device) {
+    private void fireRawDeviceEvent(final Map<String, String> parameters) {
         eventRunner.offer(new Runnable() {
             @Override
             public void run() {
                 for (RawDeviceEventListener listener : rawDeviceEventListeners) {
-                    listener.rawDeviceEvent(device);
+                    listener.rawDeviceEvent(parameters);
                 }
             }
         });
@@ -169,7 +142,7 @@ public class RawDeviceHandler {
         }
 
         // Fire event
-        fireRawDeviceEvent(getRawDevice(parameters));
+        fireRawDeviceEvent(parameters);
     }
 
     /**
@@ -178,11 +151,11 @@ public class RawDeviceHandler {
     private class TDRawDeviceEventListener implements TDRawDeviceEvent {
         @Override
         public void event(String data, int controllerId, int callbackId, Pointer context) {
-            logger.trace("event: " + data);
+            if (logger.isTraceEnabled())
+                logger.trace(String.format("event: %s", data));
 
             handleEvent(controllerId, data);
         }
-
     }
 
 }

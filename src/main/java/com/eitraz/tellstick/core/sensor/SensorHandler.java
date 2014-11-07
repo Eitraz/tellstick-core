@@ -195,14 +195,9 @@ public class SensorHandler {
 
         @Override
         public void event(String protocol, String model, int id, int dataType, String value, int timestamp, int callbackId, Pointer context) {
-            String string = "";
-            string += "protocol: " + protocol + ", ";
-            string += "model: " + model + ", ";
-            string += "id: " + id + ", ";
-            string += "dataType: " + dataType + ", ";
-            string += "value: " + value + ", ";
-            string += "timestamp: " + timestamp + ", ";
-            string += "callbackId: " + callbackId;
+            String string = String.format(
+                    "protocol: %s,model: %s, id: %d, dataType: %d, value: %s, timestamp: %d, callbackId: %d",
+                    protocol, model, id, dataType, value, timestamp, callbackId);
 
             // Don't fire event to often
             if (!timeoutHandler.isReady(string))
