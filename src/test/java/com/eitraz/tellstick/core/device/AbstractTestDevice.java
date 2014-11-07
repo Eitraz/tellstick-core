@@ -1,26 +1,21 @@
-package com.eitraz.tellstick.core;
+package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.device.Device;
-import com.eitraz.tellstick.core.device.DeviceException;
-import com.eitraz.tellstick.core.device.DeviceHandler;
-import com.eitraz.tellstick.core.device.OnOffDevice;
+import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
 /**
- * Test Device
+ * Abstract Test Device
+ * <p/>
+ * Created by Petter Alstermark on 2014-11-07.
  */
-public class TestDevice implements OnOffDevice {
-    private int counter;
+public abstract class AbstractTestDevice implements Device {
     private int deviceId;
     private String name;
 
-    public TestDevice() {
-    }
+    protected int counter;
 
-    public TestDevice(int deviceId, String name) {
+    public AbstractTestDevice(int deviceId, String name) {
         this.deviceId = deviceId;
         this.name = name;
-
-        this.counter = 0;
     }
 
     @Override
@@ -75,18 +70,4 @@ public class TestDevice implements OnOffDevice {
         return counter;
     }
 
-    @Override
-    public void on() throws DeviceException {
-        counter++;
-    }
-
-    @Override
-    public void off() throws DeviceException {
-        counter--;
-    }
-
-    @Override
-    public boolean isOn() {
-        return false;
-    }
 }

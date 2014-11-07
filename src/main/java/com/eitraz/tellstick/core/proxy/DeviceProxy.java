@@ -32,12 +32,7 @@ public final class DeviceProxy {
 
     private DeviceMethodCaller thread;
 
-    /**
-     * Start thread
-     */
     protected DeviceProxy() {
-        thread = new DeviceMethodCaller();
-        thread.start();
     }
 
     /**
@@ -47,8 +42,51 @@ public final class DeviceProxy {
         // Create new instance
         if (instance == null) {
             instance = new DeviceProxy();
+            instance.start();
         }
         return instance;
+    }
+
+    /**
+     * Clear and start
+     */
+    public void start() {
+        // Already started
+        if (thread != null)
+            return;
+
+        // Clear
+        clear();
+
+        // Start
+        thread = new DeviceMethodCaller();
+        thread.start();
+    }
+
+    /**
+     * Stop and clear
+     */
+    public void stop() {
+        // Stop thread
+        if (thread != null) {
+            DeviceMethodCaller currentThread = thread;
+            thread = null;
+            currentThread.interrupt();
+        }
+
+        // Clear
+        clear();
+    }
+
+    /**
+     * Clear
+     */
+    public void clear() {
+        synchronized (deviceMethodCallsMap) {
+            deviceMethodCallsMap.clear();
+        }
+
+        queue.clear();
     }
 
     /**
@@ -173,8 +211,10 @@ public final class DeviceProxy {
 
                     // Delay
                     Thread.sleep(getCallDelay());
-                } catch (InterruptedException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    logger.error(e);
+                } catch (InterruptedException e) {
+                    logger.debug("Interrupted");
                 }
             }
         }
@@ -212,7 +252,7 @@ public final class DeviceProxy {
             tries++;
 
             if (logger.isDebugEnabled())
-                logger.debug(String.format("call nr %d to device '%s' (#%d), method '%s'", tries, device.getName(), device.getDeviceId(), method.getName()));
+                logger.debug(String.format("%d call to method '%s' on device '%s' (#%d)", tries, method.getName(), device.getName(), device.getDeviceId()));
 
             method.invoke(device, args);
         }

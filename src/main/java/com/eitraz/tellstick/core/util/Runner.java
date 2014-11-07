@@ -32,18 +32,23 @@ public class Runner {
     }
 
     /**
-     * Start (and clear)
+     * Clear and start
      */
     public void start() {
-        thread = new RunnerThread();
-        thread.start();
+        // Already started
+        if (thread != null)
+            return;
 
         // Clear all current runnables
         runnables.clear();
+
+        // Start
+        thread = new RunnerThread();
+        thread.start();
     }
 
     /**
-     * Stop (and clear)
+     * Stop and clear
      */
     public void stop() {
         // Stop thread
@@ -88,7 +93,7 @@ public class Runner {
                         runnable.run();
                     }
                 } catch (InterruptedException e) {
-                    // ignore
+                    logger.debug("Interrupted");
                 }
             }
         }
