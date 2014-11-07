@@ -2,23 +2,27 @@ package com.eitraz.tellstick.core.controller;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDControllerEvent;
+import com.eitraz.tellstick.core.util.Runner;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ControllerHandler {
     private static final Logger logger = Logger.getLogger(ControllerHandler.class);
 
-    private final Set<ControllerEventListener> controllerEventListeners = new HashSet<>();
+    private final Set<ControllerEventListener> controllerEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
+
+    private final Runner eventRunner;
 
     private int controllerEventCallbackId = -1;
 
     public ControllerHandler(TellstickCoreLibrary library) {
         this.library = library;
+        this.eventRunner = new Runner();
     }
 
     /**
@@ -47,12 +51,18 @@ public class ControllerHandler {
         logger.debug("Starting Controller Event Listener");
         TDControllerEventListener controllerEventListener = new TDControllerEventListener();
         controllerEventCallbackId = library.tdRegisterControllerEvent(controllerEventListener, null);
+
+        // Start Event Runner
+        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
+        // Stop Event Runner
+        eventRunner.stop();
+
         // Stop Controller Event Listener
         if (controllerEventCallbackId != -1) {
             logger.debug("Stopping Controller Event Listener");
@@ -72,9 +82,14 @@ public class ControllerHandler {
             string += "newValue: " + newValue + ", ";
             string += "callbackId: " + callbackId;
 
-            for (ControllerEventListener listener : controllerEventListeners) {
-                // TODO
-            }
+            eventRunner.offer(new Runnable() {
+                @Override
+                public void run() {
+                    for (ControllerEventListener listener : controllerEventListeners) {
+                        // TODO
+                    }
+                }
+            });
 
             logger.info(string);
         }

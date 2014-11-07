@@ -5,6 +5,7 @@ import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceChangeEvent;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceEvent;
 import com.eitraz.tellstick.core.TellstickException;
 import com.eitraz.tellstick.core.device.impl.*;
+import com.eitraz.tellstick.core.util.Runner;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
@@ -26,6 +27,8 @@ public class DeviceHandler {
     private final TellstickCoreLibrary library;
     private final int supportedMethods;
 
+    private final Runner eventRunner;
+
     private int deviceEventCallbackId = -1;
     private int deviceChangeEventCallbackId = -1;
 
@@ -34,9 +37,14 @@ public class DeviceHandler {
     @SuppressWarnings("FieldCanBeLocal")
     private TDDeviceChangeEventListener deviceChangeEventListener;
 
+    /**
+     * @param library          tellstick core library
+     * @param supportedMethods supported methods
+     */
     public DeviceHandler(TellstickCoreLibrary library, int supportedMethods) {
         this.library = library;
         this.supportedMethods = supportedMethods;
+        this.eventRunner = new Runner();
     }
 
     /**
@@ -70,12 +78,18 @@ public class DeviceHandler {
         logger.debug("Starting Device Change Event Listener");
         deviceChangeEventListener = new TDDeviceChangeEventListener();
         deviceChangeEventCallbackId = library.tdRegisterDeviceChangeEvent(deviceChangeEventListener, null);
+
+        // Start event runner
+        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
+        // Stop event runner
+        eventRunner.stop();
+
         // Stop Device Event Listener
         if (deviceEventCallbackId != -1) {
             logger.debug("Stopping Device Event Listener");
@@ -274,10 +288,15 @@ public class DeviceHandler {
      * @param deviceId device ID
      * @param device   device
      */
-    private void fireDeviceChanged(int deviceId, Device device) {
-        for (DeviceEventListener listener : deviceEventListeners) {
-            listener.deviceChanged(deviceId, device);
-        }
+    private void fireDeviceChanged(final int deviceId, final Device device) {
+        eventRunner.offer(new Runnable() {
+            @Override
+            public void run() {
+                for (DeviceEventListener listener : deviceEventListeners) {
+                    listener.deviceChanged(deviceId, device);
+                }
+            }
+        });
     }
 
     /**
@@ -286,10 +305,15 @@ public class DeviceHandler {
      * @param deviceId device ID
      * @param device   device
      */
-    private void fireDeviceAdded(int deviceId, Device device) {
-        for (DeviceEventListener listener : deviceEventListeners) {
-            listener.deviceAdded(deviceId, device);
-        }
+    private void fireDeviceAdded(final int deviceId, final Device device) {
+        eventRunner.offer(new Runnable() {
+            @Override
+            public void run() {
+                for (DeviceEventListener listener : deviceEventListeners) {
+                    listener.deviceAdded(deviceId, device);
+                }
+            }
+        });
     }
 
     /**
@@ -297,10 +321,15 @@ public class DeviceHandler {
      *
      * @param deviceId device ID
      */
-    private void fireDeviceRemoved(int deviceId) {
-        for (DeviceEventListener listener : deviceEventListeners) {
-            listener.deviceRemoved(deviceId);
-        }
+    private void fireDeviceRemoved(final int deviceId) {
+        eventRunner.offer(new Runnable() {
+            @Override
+            public void run() {
+                for (DeviceEventListener listener : deviceEventListeners) {
+                    listener.deviceRemoved(deviceId);
+                }
+            }
+        });
     }
 
     /**
@@ -311,21 +340,23 @@ public class DeviceHandler {
 
         @Override
         public void event(int deviceId, int method, String data, int callbackId, Pointer context) {
-            logger.trace("Event: " + deviceId + ", " + method);
+            if (logger.isTraceEnabled())
+                logger.trace(String.format("Event: %d, %d", deviceId, method));
 
             // String data = dataPointer.getString(0);
 
             // Don't fire event to often
-            if (!timeoutHandler.isReady(deviceId + "," + method + "," + data))
+            if (!timeoutHandler.isReady(String.format("%d,%d,%s", deviceId, method, data)))
                 return;
 
             // Debug log
-            logger.debug("DeviceId=" + deviceId + ", method=" + method + ", data=" + data);
+            if (logger.isDebugEnabled())
+                logger.debug(String.format("DeviceId=%d, method=%d, data=%s", deviceId, method, data));
 
             try {
                 fireDeviceChanged(deviceId, getDevice(deviceId));
             } catch (DeviceNotSupportedException e) {
-                logger.warn("Device #" + deviceId + " is not supported.");
+                logger.warn(String.format("Device #%d is not supported.", deviceId));
             }
         }
     }
@@ -338,21 +369,23 @@ public class DeviceHandler {
 
         @Override
         public void event(int deviceId, int changeEvent, int changeType, int callbackId, Pointer context) {
-            logger.trace("Event: " + deviceId);
+            if (logger.isTraceEnabled())
+                logger.trace(String.format("Event: %d", deviceId));
 
             // Don't fire event to often
-            if (!timeoutHandler.isReady(deviceId + "," + changeEvent + "," + changeType))
+            if (!timeoutHandler.isReady(String.format("%d,%d,%d", deviceId, changeEvent, changeType)))
                 return;
 
             // Debug log
-            logger.debug("DeviceId=" + deviceId + ", changeEvent=" + changeEvent + ", changeType=" + changeType);
+            if (logger.isDebugEnabled())
+                logger.debug(String.format("DeviceId=%d, changeEvent=%d, changeType=%d", deviceId, changeEvent, changeType));
 
             // Device Changed
             if (changeEvent == TellstickCoreLibrary.TELLSTICK_DEVICE_CHANGED || changeEvent == TellstickCoreLibrary.TELLSTICK_DEVICE_STATE_CHANGED) {
                 try {
                     fireDeviceChanged(deviceId, getDevice(deviceId));
                 } catch (DeviceNotSupportedException e) {
-                    logger.warn("Device #" + deviceId + " is not supported.");
+                    logger.warn(String.format("Device #%d is not supported.", deviceId));
                 }
             }
             // Device Added
@@ -360,7 +393,7 @@ public class DeviceHandler {
                 try {
                     fireDeviceAdded(deviceId, getDevice(deviceId));
                 } catch (DeviceNotSupportedException e) {
-                    logger.warn("Device #" + deviceId + " is not supported.");
+                    logger.warn(String.format("Device #%d is not supported.", deviceId));
                 }
             }
             // Device Removed
@@ -369,7 +402,7 @@ public class DeviceHandler {
             }
             // Unhandled event
             else {
-                logger.error("Unhandled Device Change Event " + changeEvent);
+                logger.error(String.format("Unhandled Device Change Event '%d'", changeEvent));
             }
         }
     }

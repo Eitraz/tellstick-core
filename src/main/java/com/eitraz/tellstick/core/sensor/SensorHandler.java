@@ -1,18 +1,18 @@
 package com.eitraz.tellstick.core.sensor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDSensorEvent;
+import com.eitraz.tellstick.core.util.Runner;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SensorHandler {
     private static final Logger logger = Logger.getLogger(SensorHandler.class);
@@ -27,10 +27,12 @@ public class SensorHandler {
             TellstickCoreLibrary.TELLSTICK_WINDGUST,
     };
 
-    private final Set<SensorEventListener> sensorEventListeners = new HashSet<>();
+    private final Set<SensorEventListener> sensorEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
     private final int supportedDataTypes;
+
+    private final Runner eventRunner;
 
     private int sensorEventCallbackId = -1;
     @SuppressWarnings("FieldCanBeLocal")
@@ -39,6 +41,7 @@ public class SensorHandler {
     public SensorHandler(TellstickCoreLibrary library, int supportedDataTypes) {
         this.library = library;
         this.supportedDataTypes = supportedDataTypes;
+        this.eventRunner = new Runner();
     }
 
     /**
@@ -74,12 +77,18 @@ public class SensorHandler {
         logger.debug("Starting Sensor Event Listener");
         sensorEventListener = new TDSensorEventListener();
         sensorEventCallbackId = library.tdRegisterSensorEvent(sensorEventListener, null);
+
+        // Start Event Runner
+        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
+        // Stop Event Runner
+        eventRunner.stop();
+
         // Stop Sensor Event Listener
         if (sensorEventCallbackId != -1) {
             logger.debug("Stopping Sensor Event Listener");
@@ -167,10 +176,15 @@ public class SensorHandler {
      *
      * @param sensor sensor
      */
-    private void fireSensorEvent(Sensor sensor) {
-        for (SensorEventListener listener : sensorEventListeners) {
-            listener.sensorEvent(sensor);
-        }
+    private void fireSensorEvent(final Sensor sensor) {
+        eventRunner.offer(new Runnable() {
+            @Override
+            public void run() {
+                for (SensorEventListener listener : sensorEventListeners) {
+                    listener.sensorEvent(sensor);
+                }
+            }
+        });
     }
 
     /**

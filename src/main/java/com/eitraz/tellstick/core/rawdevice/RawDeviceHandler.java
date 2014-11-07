@@ -2,6 +2,7 @@ package com.eitraz.tellstick.core.rawdevice;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
+import com.eitraz.tellstick.core.util.Runner;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class RawDeviceHandler {
     private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
@@ -37,9 +39,11 @@ public class RawDeviceHandler {
     public static final String ON = "turnon";
     public static final String OFF = "turnoff";
 
-    private final Set<RawDeviceEventListener> rawDeviceEventListeners = new HashSet<>();
+    private final Set<RawDeviceEventListener> rawDeviceEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
+
+    private final Runner eventRunner;
 
     private int rawDeviceEventCallbackId = -1;
     @SuppressWarnings("FieldCanBeLocal")
@@ -49,6 +53,7 @@ public class RawDeviceHandler {
 
     public RawDeviceHandler(TellstickCoreLibrary library) {
         this.library = library;
+        this.eventRunner = new Runner();
     }
 
     /**
@@ -77,12 +82,18 @@ public class RawDeviceHandler {
         logger.debug("Starting Raw Device Event Listener");
         rawDeviceEventListener = new TDRawDeviceEventListener();
         rawDeviceEventCallbackId = library.tdRegisterRawDeviceEvent(rawDeviceEventListener, null);
+
+        // Start Event Runner
+        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
+        // Stop Event Runner
+        eventRunner.stop();
+
         // Stop Raw Device Event Listener
         if (rawDeviceEventCallbackId != -1) {
             logger.debug("Stopping Raw Device Event Listener");
@@ -120,12 +131,17 @@ public class RawDeviceHandler {
     /**
      * Fire Raw Device Event
      *
-     * @param device
+     * @param device device
      */
-    private void fireRawDeviceEvent(RawDevice device) {
-        for (RawDeviceEventListener listener : rawDeviceEventListeners) {
-            listener.rawDeviceEvent(device);
-        }
+    private void fireRawDeviceEvent(final RawDevice device) {
+        eventRunner.offer(new Runnable() {
+            @Override
+            public void run() {
+                for (RawDeviceEventListener listener : rawDeviceEventListeners) {
+                    listener.rawDeviceEvent(device);
+                }
+            }
+        });
     }
 
     /**
