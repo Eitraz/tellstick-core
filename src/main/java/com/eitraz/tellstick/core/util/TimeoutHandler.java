@@ -60,7 +60,8 @@ public class TimeoutHandler<T> {
             timeout = null;
         }
 
-        logger.debug(String.format("%s timed out: %s", value, timeout == null));
+        if (logger.isTraceEnabled())
+            logger.trace(String.format("'%s' timed out: %s", value, timeout == null));
 
         // Set timeout value
         cache.put(value, time + getTimeout());
