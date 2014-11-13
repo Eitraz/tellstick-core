@@ -1,14 +1,12 @@
 package com.eitraz.tellstick.core.rawdevice;
 
 import com.eitraz.tellstick.core.Tellstick;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 @Ignore
 public class RawDeviceHandlerTest {
