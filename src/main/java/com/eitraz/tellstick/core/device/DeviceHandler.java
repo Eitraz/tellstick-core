@@ -15,14 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class DeviceHandler {
     private static final Logger logger = Logger.getLogger(DeviceHandler.class);
 
     private final Set<DeviceEventListener> deviceEventListeners = new CopyOnWriteArraySet<>();
-    private final Map<Integer, Device> devices = new ConcurrentHashMap<>();
+//    private final Map<Integer, Device> devices = new ConcurrentHashMap<>();
 
     private final TellstickCoreLibrary library;
     private final int supportedMethods;
@@ -140,12 +139,13 @@ public class DeviceHandler {
      * @throws DeviceNotSupportedException
      */
     public Device getDevice(int deviceId) throws DeviceNotSupportedException {
-        Device device = devices.get(deviceId);
-        if (device == null) {
-            device = createDevice(deviceId);
-            devices.put(deviceId, device);
-        }
-        return device;
+        return createDevice(deviceId);
+//        Device device = devices.get(deviceId);
+//        if (device == null) {
+//            device = createDevice(deviceId);
+//            devices.put(deviceId, device);
+//        }
+//        return device;
     }
 
     /**
