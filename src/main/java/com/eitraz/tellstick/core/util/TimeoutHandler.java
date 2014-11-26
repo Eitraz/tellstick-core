@@ -10,13 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TimeoutHandler<T> {
     protected static final Logger logger = Logger.getLogger(TimeoutHandler.class);
 
-    private static final long DEFAULT_TIMEOUT = 1000;
+    protected static final long DEFAULT_TIMEOUT = 1000;
 
     private static final int MAX_CLEAN_TIMEOUT = 600000;
     private static final long CLEAN_TIMEOUT_MULTIPLIER = 60 * 5;
 
     private long cacheClearTime = System.currentTimeMillis();
-    private final Map<T, Long> cache = new ConcurrentHashMap<>();
+    protected final Map<T, Long> cache;
 
     private long timeout;
 
@@ -25,7 +25,12 @@ public class TimeoutHandler<T> {
     }
 
     public TimeoutHandler(long timeout) {
-        this.timeout = timeout;
+        this(timeout, new ConcurrentHashMap<T, Long>());
+    }
+
+    public TimeoutHandler(long timeout, Map<T, Long> cache) {
+        setTimeout(timeout);
+        this.cache = cache;
     }
 
     /**
