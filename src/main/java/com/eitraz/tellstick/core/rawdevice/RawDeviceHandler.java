@@ -15,10 +15,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class RawDeviceHandler {
     private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
 
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 1000;
 
-    public static final String DELIMITER_MAJOR = ";";
-    public static final String DELIMITER_MINOR = ":";
+    private static final String DELIMITER_MAJOR = ";";
+    private static final String DELIMITER_MINOR = ":";
 
     public static final String _CLASS = "class";
     public static final String PROTOCOL = "protocol";
@@ -107,21 +107,14 @@ public class RawDeviceHandler {
      * @param parameters parameters
      */
     private void fireRawDeviceEvent(final Map<String, String> parameters) {
-        eventRunner.offer(new Runnable() {
-            @Override
-            public void run() {
-                for (RawDeviceEventListener listener : rawDeviceEventListeners) {
-                    listener.rawDeviceEvent(parameters);
-                }
-            }
-        });
+        eventRunner.offer(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(parameters)));
     }
 
     /**
      * @param controllerId controller id
      * @param data         data
      */
-    public void handleEvent(int controllerId, String data) {
+    private void handleEvent(int controllerId, String data) {
         // String data = dataPointer.getString(0);
 
         // Don't fire event to often

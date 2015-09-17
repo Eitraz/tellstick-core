@@ -27,8 +27,6 @@ public class ControllerHandler {
 
     /**
      * Add Sensor Event Listen
-     *
-     * @param listener
      */
     public void addDeviceEventListener(ControllerEventListener listener) {
         controllerEventListeners.add(listener);
@@ -36,8 +34,6 @@ public class ControllerHandler {
 
     /**
      * Remove Sensor Event Listener
-     *
-     * @param listener
      */
     public void removeDeviceEventListener(ControllerEventListener listener) {
         controllerEventListeners.remove(listener);
@@ -82,12 +78,9 @@ public class ControllerHandler {
             string += "newValue: " + newValue + ", ";
             string += "callbackId: " + callbackId;
 
-            eventRunner.offer(new Runnable() {
-                @Override
-                public void run() {
-                    for (ControllerEventListener listener : controllerEventListeners) {
-                        // TODO
-                    }
+            eventRunner.offer(() -> {
+                for (ControllerEventListener ignored : controllerEventListeners) {
+                    // TODO
                 }
             });
 

@@ -3,20 +3,19 @@ package com.eitraz.tellstick.core.util;
 import org.apache.log4j.Logger;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class TimeoutHandler<T> {
-    protected static final Logger logger = Logger.getLogger(TimeoutHandler.class);
+    private static final Logger logger = Logger.getLogger(TimeoutHandler.class);
 
-    protected static final long DEFAULT_TIMEOUT = 1000;
+    private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final int MAX_CLEAN_TIMEOUT = 600000;
     private static final long CLEAN_TIMEOUT_MULTIPLIER = 60 * 5;
 
     private long cacheClearTime = System.currentTimeMillis();
-    protected final Map<T, Long> cache;
+    private final Map<T, Long> cache;
 
     private long timeout;
 
@@ -25,7 +24,7 @@ public class TimeoutHandler<T> {
     }
 
     public TimeoutHandler(long timeout) {
-        this(timeout, new ConcurrentHashMap<T, Long>());
+        this(timeout, new ConcurrentHashMap<>());
     }
 
     public TimeoutHandler(long timeout, Map<T, Long> cache) {
@@ -48,7 +47,6 @@ public class TimeoutHandler<T> {
     }
 
     /**
-     * @param value
      * @return true if value is timed out
      */
     public synchronized boolean isReady(T value) {
@@ -78,7 +76,7 @@ public class TimeoutHandler<T> {
     /**
      * Clean up values left behind
      */
-    protected void clean() {
+    private void clean() {
         long time = System.currentTimeMillis();
 
         // Don't clean to often
@@ -86,12 +84,10 @@ public class TimeoutHandler<T> {
             if (logger.isDebugEnabled())
                 logger.debug("Cleaning cache (values before clean: " + cache.size());
 
-            for (Entry<T, Long> entry : cache.entrySet()) {
-                // Remove if timed out
-                if (entry.getValue() <= time) {
-                    cache.remove(entry.getKey());
-                }
-            }
+            // Remove if timed out
+            cache.entrySet().stream()
+                    .filter(entry -> entry.getValue() <= time)
+                    .forEach(entry -> cache.remove(entry.getKey()));
 
             if (logger.isDebugEnabled())
                 logger.debug("Values after clean: " + cache.size());

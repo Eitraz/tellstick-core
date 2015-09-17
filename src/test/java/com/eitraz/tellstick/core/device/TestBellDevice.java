@@ -2,8 +2,6 @@ package com.eitraz.tellstick.core.device;
 
 /**
  * Test Bell Device
- * <p/>
- * Created by Petter Alstermark on 2014-11-07.
  */
 public class TestBellDevice extends AbstractTestDevice implements BellDevice {
 

@@ -4,10 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
-
-import static com.jayway.awaitility.Awaitility.*;
-import static org.hamcrest.Matchers.*;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
 public class RunnerTest {
@@ -45,12 +43,7 @@ public class RunnerTest {
         runner.offer(new IncreaseCounter());
 
         // Counter should be increased by one
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return counter;
-            }
-        }, equalTo(1));
+        await().until(() -> counter, equalTo(1));
     }
 
     @Test
@@ -62,12 +55,7 @@ public class RunnerTest {
         runner.offer(new IncreaseCounter());
 
         // Counter should be increased by one
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return counter;
-            }
-        }, equalTo(1));
+        await().until(() -> counter, equalTo(1));
 
         // Stop (clear)
         runner.stop();
@@ -86,12 +74,7 @@ public class RunnerTest {
         runner.offer(new IncreaseCounter());
 
         // Counter should be increased by one
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return counter;
-            }
-        }, equalTo(2));
+        await().until(() -> counter, equalTo(2));
     }
 
     @Test
@@ -105,12 +88,7 @@ public class RunnerTest {
         }
 
         // Counter should be increased by 5
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return counter;
-            }
-        }, equalTo(5));
+        await().until(() -> counter, equalTo(5));
     }
 
     /**

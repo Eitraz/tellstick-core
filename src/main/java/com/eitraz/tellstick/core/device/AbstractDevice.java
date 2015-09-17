@@ -20,7 +20,7 @@ public abstract class AbstractDevice implements Device {
     private final String protocol;
     private final int deviceType;
 
-    public AbstractDevice(DeviceHandler deviceHandler, int deviceId) {
+    protected AbstractDevice(DeviceHandler deviceHandler, int deviceId) {
         this.deviceHandler = deviceHandler;
         this.deviceId = deviceId;
 

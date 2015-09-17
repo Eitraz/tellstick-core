@@ -18,9 +18,7 @@ public class TellstickTestCase {
             DeviceHandler deviceHandler = tellstick.getDeviceHandler();
             List<Device> devices = deviceHandler.getDevices();
 
-            for (Device device : devices) {
-                System.out.println(device);
-            }
+            devices.forEach(System.out::println);
         } finally {
             tellstick.stop();
         }

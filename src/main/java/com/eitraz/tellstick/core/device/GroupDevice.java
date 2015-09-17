@@ -4,8 +4,6 @@ import java.util.List;
 
 /**
  * Group Device
- * <p/>
- * Created by Petter Alstermark on 2014-11-06.
  */
 public interface GroupDevice extends Device {
     /**

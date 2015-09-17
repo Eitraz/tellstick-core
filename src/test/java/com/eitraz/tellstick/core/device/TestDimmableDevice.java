@@ -2,8 +2,6 @@ package com.eitraz.tellstick.core.device;
 
 /**
  * Test Dimmable Device
- * <p/>
- * Created by Petter Alstermark on 2014-11-07.
  */
 public class TestDimmableDevice extends AbstractTestDevice implements DimmableDevice {
     public TestDimmableDevice(int deviceId, String name) {

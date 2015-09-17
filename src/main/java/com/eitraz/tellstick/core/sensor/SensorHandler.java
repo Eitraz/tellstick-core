@@ -142,12 +142,12 @@ public class SensorHandler {
             IntByReference timestamp = new IntByReference();
 
             // Get data types
-            for (int dataType : getDataTypes(dataTypes)) {
-                if (library.tdSensorValue(protocol, model, id, dataType, valuePointer, valueLen, timestamp) == TellstickCoreLibrary.TELLSTICK_SUCCESS) {
-                    String value = valuePointer.getString(0);
-                    sensors.add(getSensor(id, protocol, model, dataType, value, timestamp.getValue()));
-                }
-            }
+            getDataTypes(dataTypes).stream()
+                    .filter(dataType -> library.tdSensorValue(protocol, model, id, dataType, valuePointer, valueLen, timestamp) == TellstickCoreLibrary.TELLSTICK_SUCCESS)
+                    .forEach(dataType -> {
+                        String value = valuePointer.getString(0);
+                        sensors.add(getSensor(id, protocol, model, dataType, value, timestamp.getValue()));
+                    });
 
         }
 
@@ -155,7 +155,7 @@ public class SensorHandler {
     }
 
     /**
-     * Get data types from datatypes
+     * Get data types from data types
      *
      * @param dataTypes data types
      * @return data types
@@ -177,14 +177,7 @@ public class SensorHandler {
      * @param sensor sensor
      */
     private void fireSensorEvent(final Sensor sensor) {
-        eventRunner.offer(new Runnable() {
-            @Override
-            public void run() {
-                for (SensorEventListener listener : sensorEventListeners) {
-                    listener.sensorEvent(sensor);
-                }
-            }
-        });
+        eventRunner.offer(() -> sensorEventListeners.forEach(listener -> listener.sensorEvent(sensor)));
     }
 
     /**

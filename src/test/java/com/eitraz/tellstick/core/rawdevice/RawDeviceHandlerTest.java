@@ -6,8 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Map;
-
 @Ignore
 public class RawDeviceHandlerTest {
     private static Tellstick tellstick;
@@ -28,12 +26,7 @@ public class RawDeviceHandlerTest {
 
     @Test
     public void testHandleEvent() throws Exception {
-        tellstick.getRawDeviceHandler().addRawDeviceEventListener(new RawDeviceEventListener() {
-            @Override
-            public void rawDeviceEvent(Map<String, String> parameters) {
-                System.out.println(parameters);
-            }
-        });
+        tellstick.getRawDeviceHandler().addRawDeviceEventListener(System.out::println);
 
         Thread.sleep(30000);
     }

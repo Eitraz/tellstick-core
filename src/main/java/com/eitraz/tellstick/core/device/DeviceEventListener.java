@@ -8,7 +8,7 @@ public interface DeviceEventListener {
      * @param deviceId device ID
      * @param device device
      */
-    public void deviceChanged(int deviceId, Device device);
+    void deviceChanged(int deviceId, Device device);
 
     /**
      * Device Added
@@ -16,12 +16,12 @@ public interface DeviceEventListener {
      * @param deviceId device ID
      * @param device device
      */
-    public void deviceAdded(int deviceId, Device device);
+    void deviceAdded(int deviceId, Device device);
 
     /**
      * Device Removed
      *
      * @param deviceId device ID
      */
-    public void deviceRemoved(int deviceId);
+    void deviceRemoved(int deviceId);
 }

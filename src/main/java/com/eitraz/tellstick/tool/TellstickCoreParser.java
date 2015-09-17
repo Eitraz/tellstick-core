@@ -52,7 +52,7 @@ public class TellstickCoreParser {
             // Define
             if ((matcher = DEFINE_PATTERN.matcher(line)).matches()) {
                 String define = "\t// " + matcher.group(0) + "\n";
-                define += "\tpublic static final int " + matcher.group(1) + " = " + matcher.group(2) + ";";
+                define += "\tint " + matcher.group(1) + " = " + matcher.group(2) + ";";
                 defines.add(define);
             }
             // Event

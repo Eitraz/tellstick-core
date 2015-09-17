@@ -3,7 +3,6 @@ package com.eitraz.tellstick.core.proxy;
 import com.eitraz.tellstick.core.device.Device;
 import org.apache.log4j.Logger;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,10 +13,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Device Proxy
- * <p/>
+ * <p>
  * Add a "redelivery" to all void method calls
- * <p/>
- * Created by Petter Alstermark on 2014-11-06.
  */
 public final class DeviceProxy {
     private static final Logger logger = Logger.getLogger(DeviceProxy.class);
@@ -81,7 +78,7 @@ public final class DeviceProxy {
     /**
      * Clear
      */
-    public void clear() {
+    private void clear() {
         synchronized (deviceMethodCallsMap) {
             deviceMethodCallsMap.clear();
         }
@@ -152,20 +149,18 @@ public final class DeviceProxy {
      */
     @SuppressWarnings("unchecked")
     public <T extends Device> T doProxy(final T device, Class<T> targetClass) {
-        return (T) Proxy.newProxyInstance(device.getClass().getClassLoader(), new Class<?>[]{targetClass}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                // Do tries
-                if (method.getReturnType().equals(Void.TYPE)) {
-                    queue(new DeviceMethodCall(device, method, args), true);
-                    return Void.TYPE;
-                }
-                // Call once and return result
-                else {
-                    return method.invoke(device, args);
-                }
-            }
-        });
+        return (T) Proxy.newProxyInstance(device.getClass().getClassLoader(), new Class<?>[]{targetClass},
+                (proxy, method, args) -> {
+                    // Do tries
+                    if (method.getReturnType().equals(Void.TYPE)) {
+                        queue(new DeviceMethodCall(device, method, args), true);
+                        return Void.TYPE;
+                    }
+                    // Call once and return result
+                    else {
+                        return method.invoke(device, args);
+                    }
+                });
     }
 
     /**
@@ -221,13 +216,13 @@ public final class DeviceProxy {
     }
 
     /**
-     * Device Cethod Call
+     * Device Method Call
      */
     private class DeviceMethodCall {
         private int tries;
-        private Device device;
-        private Method method;
-        private Object[] args;
+        private final Device device;
+        private final Method method;
+        private final Object[] args;
 
         /**
          * @param device device

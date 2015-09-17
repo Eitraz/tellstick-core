@@ -1,12 +1,11 @@
 package com.eitraz.tellstick.core;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-
 import com.eitraz.tellstick.core.device.DeviceHandler;
 import com.eitraz.tellstick.core.rawdevice.RawDeviceHandler;
 import com.eitraz.tellstick.core.sensor.SensorHandler;
 import com.sun.jna.Native;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 public class Tellstick {
     private static final Logger logger = Logger.getLogger(Tellstick.class);
@@ -67,7 +66,7 @@ public class Tellstick {
         sensorHandler.start();
 
         // Controller Handler
-        // ontrollerHandler = new ControllerHandler(library);
+        // controllerHandler = new ControllerHandler(library);
         // controllerHandler.start();
     }
 
@@ -100,10 +99,6 @@ public class Tellstick {
     }
 
     /**
-     * Select Native Library
-     *
-     * @param osName
-     * @param osArch
      * @return native library
      */
     private String selectNativeLibrary(String osName, String osArch) {
@@ -129,9 +124,7 @@ public class Tellstick {
     }
 
     /**
-     * Get Device handler
-     *
-     * @return
+     * @return {@link DeviceHandler}
      */
     public DeviceHandler getDeviceHandler() {
         return deviceHandler;

@@ -6,11 +6,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import static com.jayway.awaitility.Awaitility.*;
-import static org.hamcrest.Matchers.*;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
 public class DeviceProxyTest {
@@ -110,12 +109,7 @@ public class DeviceProxyTest {
         DeviceProxy.proxy(onOffDevice, OnOffDevice.class).on();
 
         // Wait for one try
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return onOffDevice.getCounter();
-            }
-        }, equalTo(2));
+        await().until(onOffDevice::getCounter, equalTo(2));
 
         DeviceProxy.proxy(onOffDevice, OnOffDevice.class).off();
 
@@ -131,12 +125,7 @@ public class DeviceProxyTest {
      */
     private void assertExpectedCount(final AbstractTestDevice device) throws Exception {
         // Wait for all tries
-        await().until(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return device.getCounter();
-            }
-        }, equalTo(TRIES));
+        await().until(device::getCounter, equalTo(TRIES));
 
         // Make sure there is no other tries
         Thread.sleep(500);

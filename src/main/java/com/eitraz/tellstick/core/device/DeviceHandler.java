@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -21,7 +20,6 @@ public class DeviceHandler {
     private static final Logger logger = Logger.getLogger(DeviceHandler.class);
 
     private final Set<DeviceEventListener> deviceEventListeners = new CopyOnWriteArraySet<>();
-//    private final Map<Integer, Device> devices = new ConcurrentHashMap<>();
 
     private final TellstickCoreLibrary library;
     private final int supportedMethods;
@@ -155,7 +153,7 @@ public class DeviceHandler {
      * @return device
      * @throws DeviceNotSupportedException
      */
-    protected Device createDevice(int deviceId) throws DeviceNotSupportedException {
+    private Device createDevice(int deviceId) throws DeviceNotSupportedException {
         logger.trace("Create device " + deviceId);
         int methods = library.tdMethods(deviceId, getSupportedMethods());
 
@@ -239,11 +237,10 @@ public class DeviceHandler {
             logger.error("Unable to set device protocol");
 
         // Set Parameters
-        for (Entry<String, String> entry : parameters.entrySet()) {
-            // Set parameter
-            if (!library.tdSetDeviceParameter(deviceId, entry.getKey(), entry.getValue()))
-                logger.error("Unable to set parameter '" + entry.getKey());
-        }
+        // Set parameter
+        parameters.entrySet().stream()
+                .filter(entry -> !library.tdSetDeviceParameter(deviceId, entry.getKey(), entry.getValue()))
+                .forEach(entry -> logger.error("Unable to set parameter '" + entry.getKey()));
 
         return getDevice(deviceId);
     }
@@ -289,14 +286,7 @@ public class DeviceHandler {
      * @param device   device
      */
     private void fireDeviceChanged(final int deviceId, final Device device) {
-        eventRunner.offer(new Runnable() {
-            @Override
-            public void run() {
-                for (DeviceEventListener listener : deviceEventListeners) {
-                    listener.deviceChanged(deviceId, device);
-                }
-            }
-        });
+        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceChanged(deviceId, device)));
     }
 
     /**
@@ -306,14 +296,7 @@ public class DeviceHandler {
      * @param device   device
      */
     private void fireDeviceAdded(final int deviceId, final Device device) {
-        eventRunner.offer(new Runnable() {
-            @Override
-            public void run() {
-                for (DeviceEventListener listener : deviceEventListeners) {
-                    listener.deviceAdded(deviceId, device);
-                }
-            }
-        });
+        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceAdded(deviceId, device)));
     }
 
     /**
@@ -322,14 +305,7 @@ public class DeviceHandler {
      * @param deviceId device ID
      */
     private void fireDeviceRemoved(final int deviceId) {
-        eventRunner.offer(new Runnable() {
-            @Override
-            public void run() {
-                for (DeviceEventListener listener : deviceEventListeners) {
-                    listener.deviceRemoved(deviceId);
-                }
-            }
-        });
+        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceRemoved(deviceId)));
     }
 
     /**

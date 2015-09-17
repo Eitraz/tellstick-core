@@ -21,7 +21,7 @@ public class TellstickException extends Exception {
      * @param errorNo error no
      * @return error string
      */
-    protected static String getErrorString(TellstickCoreLibrary library, int errorNo) {
+    private static String getErrorString(TellstickCoreLibrary library, int errorNo) {
         Pointer errorStringPointer = library.tdGetErrorString(errorNo);
         String errorString = errorStringPointer.getString(0);
         library.tdReleaseString(errorStringPointer);

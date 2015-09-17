@@ -4,11 +4,10 @@ import org.apache.log4j.Logger;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Runner
- * <p/>
- * Created by Petter Alstermark on 2014-11-07.
  */
 public class Runner {
     private static final Logger logger = Logger.getLogger(Runner.class);
@@ -82,7 +81,7 @@ public class Runner {
             while (thread == this) {
                 try {
                     // Wait for new runnable
-                    Runnable runnable = runnables.take();
+                    Runnable runnable = runnables.poll(1000, TimeUnit.SECONDS);
 
                     // Run
                     if (runnable != null && thread == this) {
