@@ -3,6 +3,7 @@ package com.eitraz.tellstick.core.device;
 import com.eitraz.tellstick.core.Tellstick;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class DeviceHandlerTest {
     private Tellstick tellstick = new Tellstick();
 

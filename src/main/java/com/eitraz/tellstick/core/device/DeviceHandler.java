@@ -237,10 +237,9 @@ public class DeviceHandler {
             logger.error("Unable to set device protocol");
 
         // Set Parameters
-        // Set parameter
         parameters.entrySet().stream()
                 .filter(entry -> !library.tdSetDeviceParameter(deviceId, entry.getKey(), entry.getValue()))
-                .forEach(entry -> logger.error("Unable to set parameter '" + entry.getKey()));
+                .forEach(entry -> logger.error(String.format("Unable to set parameter '%s'", entry.getKey())));
 
         return getDevice(deviceId);
     }
