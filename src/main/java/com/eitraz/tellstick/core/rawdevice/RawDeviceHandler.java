@@ -1,172 +1,154 @@
 package com.eitraz.tellstick.core.rawdevice;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
+import com.eitraz.tellstick.core.util.Runner;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
+import org.apache.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class RawDeviceHandler {
-	private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
+    private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
 
-	private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 1000;
 
-	public static final String DELIMITER_MAJOR = ";";
-	public static final String DELIMITER_MINOR = ":";
+    private static final String DELIMITER_MAJOR = ";";
+    private static final String DELIMITER_MINOR = ":";
 
-	public static final String _CLASS = "class";
-	public static final String PROTOCOL = "protocol";
-	public static final String MODEL = "model";
+    public static final String _CLASS = "class";
+    public static final String PROTOCOL = "protocol";
+    public static final String MODEL = "model";
 
-	public static final String COMMAND = "command";
-	public static final String SENSOR = "sensor";
+    public static final String COMMAND = "command";
+    public static final String SENSOR = "sensor";
 
-	public static final String ID = "id";
-	public static final String METHOD = "method";
+    public static final String ID = "id";
+    public static final String METHOD = "method";
 
-	public static final String HOUSE = "house";
-	public static final String UNIT = "unit";
-	public static final String GROUP = "group";
+    public static final String HOUSE = "house";
+    public static final String UNIT = "unit";
+    public static final String GROUP = "group";
 
-	public static final String BELL = "bell";
-	public static final String ON = "turnon";
-	public static final String OFF = "turnoff";
+    public static final String BELL = "bell";
+    public static final String ON = "turnon";
+    public static final String OFF = "turnoff";
 
-	private final Set<RawDeviceEventListener> rawDeviceEventListeners = new HashSet<RawDeviceEventListener>();
+    private final Set<RawDeviceEventListener> rawDeviceEventListeners = new CopyOnWriteArraySet<>();
 
-	private final TellstickCoreLibrary library;
+    private final TellstickCoreLibrary library;
 
-	private int rawDeviceEventCallbackId = -1;
-	private TDRawDeviceEventListener rawDeviceEventListener;
-	private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<String>(TIMEOUT);
+    private final Runner eventRunner;
 
-	public RawDeviceHandler(TellstickCoreLibrary library) {
-		this.library = library;
-	}
+    private int rawDeviceEventCallbackId = -1;
+    @SuppressWarnings("FieldCanBeLocal")
+    private TDRawDeviceEventListener rawDeviceEventListener;
 
-	/**
-	 * Add Raw Device Event Listen
-	 * @param listener
-	 */
-	public void addRawDeviceEventListener(RawDeviceEventListener listener) {
-		rawDeviceEventListeners.add(listener);
-	}
+    private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<>(TIMEOUT);
 
-	/**
-	 * Remove Raw Device Event Listener
-	 * @param listener
-	 */
-	public void removeRawDeviceEventListener(RawDeviceEventListener listener) {
-		rawDeviceEventListeners.remove(listener);
-	}
+    public RawDeviceHandler(TellstickCoreLibrary library) {
+        this.library = library;
+        this.eventRunner = new Runner();
+    }
 
-	/**
-	 * Start
-	 */
-	public void start() {
-		// Raw Device Event Listener
-		logger.debug("Starting Raw Device Event Listener");
-		rawDeviceEventListener = new TDRawDeviceEventListener();
-		rawDeviceEventCallbackId = library.tdRegisterRawDeviceEvent(rawDeviceEventListener, null);
-	}
+    /**
+     * Add Raw Device Event Listen
+     *
+     * @param listener raw device event listener
+     */
+    public void addRawDeviceEventListener(RawDeviceEventListener listener) {
+        rawDeviceEventListeners.add(listener);
+    }
 
-	/**
-	 * Stop
-	 */
-	public void stop() {
-		// Stop Raw Device Event Listener
-		if (rawDeviceEventCallbackId != -1) {
-			logger.debug("Stopping Raw Device Event Listener");
-			library.tdUnregisterCallback(rawDeviceEventCallbackId);
-			rawDeviceEventCallbackId = -1;
-		}
-	}
+    /**
+     * Remove Raw Device Event Listener
+     *
+     * @param listener raw device event listener
+     */
+    public void removeRawDeviceEventListener(RawDeviceEventListener listener) {
+        rawDeviceEventListeners.remove(listener);
+    }
 
-	/**
-	 * Get Raw Device
-	 * @param parameters
-	 * @return raw device
-	 */
-	private RawDevice getRawDevice(Map<String, String> parameters) {
-		String _class = parameters.remove(_CLASS);
-		String protocol = parameters.remove(PROTOCOL);
-		String model = parameters.remove(MODEL);
+    /**
+     * Start
+     */
+    public void start() {
+        // Raw Device Event Listener
+        logger.debug("Starting Raw Device Event Listener");
+        rawDeviceEventListener = new TDRawDeviceEventListener();
+        rawDeviceEventCallbackId = library.tdRegisterRawDeviceEvent(rawDeviceEventListener, null);
 
-		// Command
-		if (COMMAND.equalsIgnoreCase(_class)) {
-			String method = parameters.get(METHOD);
-			return new RawCommandDevice(_class, protocol, model, method, parameters);
-		}
-		// Sensor
-		else if (SENSOR.equalsIgnoreCase(_class)) {
-			String id = parameters.get(ID);
-			return new RawSensorDevice(_class, protocol, model, id, parameters);
-		}
-		// Other
-		else
-			return new RawDevice(_class, protocol, model, parameters);
-	}
+        // Start Event Runner
+        eventRunner.start();
+    }
 
-	/**
-	 * Fire Raw Device Event
-	 * @param device
-	 */
-	private void fireRawDeviceEvent(RawDevice device) {
-		for (RawDeviceEventListener listener : rawDeviceEventListeners) {
-			listener.rawDeviceEvent(device);
-		}
-	}
+    /**
+     * Stop
+     */
+    public void stop() {
+        // Stop Event Runner
+        eventRunner.stop();
 
-	/**
-	 * @param controllerId
-	 * @param data
-	 */
-	public void handleEvent(int controllerId, String data) {
-		//			String data = dataPointer.getString(0);
+        // Stop Raw Device Event Listener
+        if (rawDeviceEventCallbackId != -1) {
+            logger.debug("Stopping Raw Device Event Listener");
+            library.tdUnregisterCallback(rawDeviceEventCallbackId);
+            rawDeviceEventCallbackId = -1;
+        }
+    }
 
-		// Don't fire event to often
-		if (!timeoutHandler.isReady(data))
-			return;
+    /**
+     * Fire Raw Device Event
+     *
+     * @param parameters parameters
+     */
+    private void fireRawDeviceEvent(final Map<String, String> parameters) {
+        eventRunner.offer(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(parameters)));
+    }
 
-		// Debug log
-		if (logger.isDebugEnabled())
-			logger.debug(data);
+    /**
+     * @param controllerId controller id
+     * @param data         data
+     */
+    private void handleEvent(int controllerId, String data) {
+        // String data = dataPointer.getString(0);
 
-		String[] split = data.split(DELIMITER_MAJOR);
+        // Don't fire event to often
+        if (!timeoutHandler.isReady(data))
+            return;
 
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("controllerId", Integer.toString(controllerId));
-		for (String string : split) {
-			String[] pair = string.split(DELIMITER_MINOR);
-			if (pair.length == 2)
-				parameters.put(pair[0].trim(), pair[1].trim());
-		}
+        // Debug log
+        logger.debug(data);
 
-		// Fire event
-		fireRawDeviceEvent(getRawDevice(parameters));
-	}
+        String[] split = data.split(DELIMITER_MAJOR);
 
-	/**
-	 * Raw Device Event Listener
-	 */
-	private class TDRawDeviceEventListener implements TDRawDeviceEvent {
-		/*
-		 * (non-Javadoc)
-		 * @see com.eitraz.tellstick.core.TelldusCoreLibrary.TDRawDeviceEvent#event(java.lang.String, int, int, com.sun.jna.Pointer)
-		 */
-		@Override
-		public void event(String data, int controllerId, int callbackId, Pointer context) {
-			logger.trace("event: " + data);
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("controllerId", Integer.toString(controllerId));
+        for (String string : split) {
+            String[] pair = string.split(DELIMITER_MINOR);
+            if (pair.length == 2)
+                parameters.put(pair[0].trim(), pair[1].trim());
+        }
 
-			handleEvent(controllerId, data);
-		}
+        // Fire event
+        fireRawDeviceEvent(parameters);
+    }
 
-	}
+    /**
+     * Raw Device Event Listener
+     */
+    private class TDRawDeviceEventListener implements TDRawDeviceEvent {
+        @Override
+        public void event(String data, int controllerId, int callbackId, Pointer context) {
+            if (logger.isTraceEnabled())
+                logger.trace(String.format("event: %s", data));
+
+            handleEvent(controllerId, data);
+        }
+    }
 
 }

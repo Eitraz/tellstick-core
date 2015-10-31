@@ -1,0 +1,100 @@
+package com.eitraz.tellstick.core.util;
+
+import org.apache.log4j.Logger;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Runner
+ */
+public class Runner {
+    private static final Logger logger = Logger.getLogger(Runner.class);
+
+    private final BlockingQueue<Runnable> runnables = new LinkedBlockingDeque<>();
+    private RunnerThread thread;
+
+    /**
+     * Create new runner, but don't start it
+     */
+    public Runner() {
+        this(false);
+    }
+
+    /**
+     * @param start start if true
+     */
+    public Runner(boolean start) {
+        if (start)
+            start();
+    }
+
+    /**
+     * Clear and start
+     */
+    public void start() {
+        // Already started
+        if (thread != null)
+            return;
+
+        // Clear all current runnables
+        runnables.clear();
+
+        // Start
+        thread = new RunnerThread();
+        thread.start();
+    }
+
+    /**
+     * Stop and clear
+     */
+    public void stop() {
+        // Stop thread
+        if (thread != null) {
+            RunnerThread currentThread = thread;
+            thread = null;
+            currentThread.interrupt();
+        }
+
+        // Clear all current runnables
+        runnables.clear();
+    }
+
+    /**
+     * @param runnable runnable to be run
+     */
+    public void offer(Runnable runnable) {
+        if (logger.isTraceEnabled())
+            logger.trace(String.format("Runnable added: %s", runnable.toString()));
+
+        // Offer
+        runnables.offer(runnable);
+    }
+
+    /**
+     * Runner Thread
+     */
+    private class RunnerThread extends Thread {
+        @Override
+        public void run() {
+            while (thread == this) {
+                try {
+                    // Wait for new runnable
+                    Runnable runnable = runnables.poll(1000, TimeUnit.SECONDS);
+
+                    // Run
+                    if (runnable != null && thread == this) {
+                        if (logger.isTraceEnabled())
+                            logger.trace(String.format("Running: %s", runnable.toString()));
+
+                        // Run
+                        runnable.run();
+                    }
+                } catch (InterruptedException e) {
+                    logger.debug("Interrupted");
+                }
+            }
+        }
+    }
+}

@@ -18,157 +18,158 @@ import java.util.regex.Pattern;
  * Parse the telldus-core.h and output TelldusCoreLibrary.java Interface
  */
 public class TellstickCoreParser {
-	private static final Pattern DEFINE_PATTERN = Pattern.compile("#define ([\\w_]+?)\\s*?(-??[\\d]+?)");
-	private static final Pattern EVENT_PATTERN = Pattern.compile("typedef void \\(WINAPI \\*(\\w+?)\\)\\s*?\\((.*?)\\);");
-	private static final Pattern METHOD_PATTERN = Pattern.compile("TELLSTICK_API (.+?) WINAPI (\\w*?)\\((.*?)\\);");
+    private static final Pattern DEFINE_PATTERN = Pattern.compile("#define ([\\w_]+?)\\s*?(-??[\\d]+?)");
+    private static final Pattern EVENT_PATTERN = Pattern.compile("typedef void \\(WINAPI \\*(\\w+?)\\)\\s*?\\((.*?)\\);");
+    private static final Pattern METHOD_PATTERN = Pattern.compile("TELLSTICK_API (.+?) WINAPI (\\w*?)\\((.*?)\\);");
 
-	private static final Map<String, String> ARGUMENT_REPLACE_MAP = new LinkedHashMap<String, String>();
-	static {
-		ARGUMENT_REPLACE_MAP.put("const char *", "String ");
-		ARGUMENT_REPLACE_MAP.put("const char* ", "String ");
-		ARGUMENT_REPLACE_MAP.put("void *", "Pointer ");
-		ARGUMENT_REPLACE_MAP.put("void* ", "Pointer ");
-		ARGUMENT_REPLACE_MAP.put("char *", "Pointer ");
-		ARGUMENT_REPLACE_MAP.put("char* ", "Pointer ");
-		ARGUMENT_REPLACE_MAP.put("unsigned char ", "int ");
-		ARGUMENT_REPLACE_MAP.put("bool ", "boolean ");
-		ARGUMENT_REPLACE_MAP.put("int *", "IntByReference ");
-		ARGUMENT_REPLACE_MAP.put("int* ", "IntByReference ");
-	}
+    private static final Map<String, String> ARGUMENT_REPLACE_MAP = new LinkedHashMap<>();
 
-	private final List<String> defines = new ArrayList<String>();
-	private final List<String> events = new ArrayList<String>();
-	private final List<String> methods = new ArrayList<String>();
+    static {
+        ARGUMENT_REPLACE_MAP.put("const char *", "String ");
+        ARGUMENT_REPLACE_MAP.put("const char* ", "String ");
+        ARGUMENT_REPLACE_MAP.put("void *", "Pointer ");
+        ARGUMENT_REPLACE_MAP.put("void* ", "Pointer ");
+        ARGUMENT_REPLACE_MAP.put("char *", "Pointer ");
+        ARGUMENT_REPLACE_MAP.put("char* ", "Pointer ");
+        ARGUMENT_REPLACE_MAP.put("unsigned char ", "int ");
+        ARGUMENT_REPLACE_MAP.put("bool ", "boolean ");
+        ARGUMENT_REPLACE_MAP.put("int *", "IntByReference ");
+        ARGUMENT_REPLACE_MAP.put("int* ", "IntByReference ");
+    }
 
-	public TellstickCoreParser(File telldusCoreFile, File outputFile) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(telldusCoreFile));
+    public TellstickCoreParser(File telldusCoreFile, File outputFile) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(telldusCoreFile));
 
-		String line;
-		while ((line = reader.readLine()) != null) {
-			line = line.trim();
+        List<String> defines = new ArrayList<>();
+        List<String> events = new ArrayList<>();
+        List<String> methods = new ArrayList<>();
 
-			Matcher matcher;
-			// Define
-			if ((matcher = DEFINE_PATTERN.matcher(line)).matches()) {
-				String define = "\t// " + matcher.group(0) + "\n";
-				define += "\tpublic static final int " + matcher.group(1) + " = " + matcher.group(2) + ";";
-				defines.add(define);
-			}
-			// Event
-			else if ((matcher = EVENT_PATTERN.matcher(line)).matches()) {
-				String event = "\t// " + matcher.group(0) + "\n";
-				event += "\tpublic interface " + matcher.group(1) + " extends Callback {\n";
-				event += "\t\tpublic void event(" + getArguments(matcher.group(2)) + ");\n";
-				event += "\t}";
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
 
-				events.add(event);
-			}
-			// Method
-			else if ((matcher = METHOD_PATTERN.matcher(line)).matches()) {
-				String method = "\t// " + matcher.group(0) + "\n";
-				method += "\tpublic " + replaceTypes(matcher.group(1) + " ").trim() + " " + matcher.group(2) + "(" + getArguments(matcher.group(3)) + ");";
-				methods.add(method);
-			}
-		}
+            Matcher matcher;
+            // Define
+            if ((matcher = DEFINE_PATTERN.matcher(line)).matches()) {
+                String define = "\t// " + matcher.group(0) + "\n";
+                define += "\tint " + matcher.group(1) + " = " + matcher.group(2) + ";";
+                defines.add(define);
+            }
+            // Event
+            else if ((matcher = EVENT_PATTERN.matcher(line)).matches()) {
+                String event = "\t// " + matcher.group(0) + "\n";
+                event += "\tpublic interface " + matcher.group(1) + " extends Callback {\n";
+                event += "\t\tpublic void event(" + getArguments(matcher.group(2)) + ");\n";
+                event += "\t}";
 
-		reader.close();
+                events.add(event);
+            }
+            // Method
+            else if ((matcher = METHOD_PATTERN.matcher(line)).matches()) {
+                String method = "\t// " + matcher.group(0) + "\n";
+                method += "\tpublic " + replaceTypes(matcher.group(1) + " ").trim() + " " + matcher.group(2) + "(" + getArguments(matcher.group(3)) + ");";
+                methods.add(method);
+            }
+        }
 
-		PrintWriter writer = new PrintWriter(new FileWriter(outputFile));
+        reader.close();
 
-		writer.println("package com.eitraz.tellstick.core;");
-		writer.println("");
-		writer.println("import com.sun.jna.Callback;");
-		writer.println("import com.sun.jna.Library;");
-		writer.println("import com.sun.jna.Pointer;");
-		writer.println("import com.sun.jna.ptr.IntByReference;");
-		writer.println("");
-		writer.println("/**");
-		writer.println(" * Generated: " + new Date().toString());
-		writer.println(" */");
-		writer.println("public interface TellstickCoreLibrary extends Library {");
+        PrintWriter writer = new PrintWriter(new FileWriter(outputFile));
 
-		writer.println("");
-		writer.println("\t/**");
-		writer.println("\t * Defines");
-		writer.println("\t */");
-		writer.println("");
+        writer.println("package com.eitraz.tellstick.core;");
+        writer.println("");
+        writer.println("import com.sun.jna.Callback;");
+        writer.println("import com.sun.jna.Library;");
+        writer.println("import com.sun.jna.Pointer;");
+        writer.println("import com.sun.jna.ptr.IntByReference;");
+        writer.println("");
+        writer.println("/**");
+        writer.println(" * Generated: " + new Date().toString());
+        writer.println(" */");
+        writer.println("public interface TellstickCoreLibrary extends Library {");
 
-		for (String string : defines) {
-			writer.println(string);
-			writer.println("");
-		}
+        writer.println("");
+        writer.println("\t/**");
+        writer.println("\t * Defines");
+        writer.println("\t */");
+        writer.println("");
 
-		writer.println("");
-		writer.println("\t/**");
-		writer.println("\t * Events");
-		writer.println("\t */");
-		writer.println("");
+        for (String string : defines) {
+            writer.println(string);
+            writer.println("");
+        }
 
-		for (String string : events) {
-			writer.println(string);
-			writer.println("");
-		}
+        writer.println("");
+        writer.println("\t/**");
+        writer.println("\t * Events");
+        writer.println("\t */");
+        writer.println("");
 
-		writer.println("");
-		writer.println("\t/**");
-		writer.println("\t * Methods");
-		writer.println("\t */");
-		writer.println("");
+        for (String string : events) {
+            writer.println(string);
+            writer.println("");
+        }
 
-		for (String string : methods) {
-			writer.println(string);
-			writer.println("");
-		}
+        writer.println("");
+        writer.println("\t/**");
+        writer.println("\t * Methods");
+        writer.println("\t */");
+        writer.println("");
 
-		writer.println("}");
+        for (String string : methods) {
+            writer.println(string);
+            writer.println("");
+        }
 
-		writer.flush();
-		writer.close();
-	}
+        writer.println("}");
 
-	private String voidArgument(String string) {
-		if (string.equals("void"))
-			return "";
-		return string;
-	}
+        writer.flush();
+        writer.close();
+    }
 
-	private String replaceTypes(String type) {
-		for (String find : ARGUMENT_REPLACE_MAP.keySet()) {
-			type = type.replace(find, ARGUMENT_REPLACE_MAP.get(find));
-		}
-		return type;
-	}
+    private String voidArgument(String string) {
+        if (string.equals("void"))
+            return "";
+        return string;
+    }
 
-	private String getArguments(String string) {
-		if (string == null)
-			return "";
+    private String replaceTypes(String type) {
+        for (String find : ARGUMENT_REPLACE_MAP.keySet()) {
+            type = type.replace(find, ARGUMENT_REPLACE_MAP.get(find));
+        }
+        return type;
+    }
 
-		string = string.trim();
-		if (string.isEmpty())
-			return "";
+    private String getArguments(String string) {
+        if (string == null)
+            return "";
 
-		List<String> arguments = new ArrayList<String>();
-		String[] split = string.split(",");
+        string = string.trim();
+        if (string.isEmpty())
+            return "";
 
-		for (String arg : split) {
-			arguments.add(replaceTypes(arg.trim()));
-		}
+        List<String> arguments = new ArrayList<>();
+        String[] split = string.split(",");
 
-		String result = "";
-		for (String arg : arguments) {
-			result += ", " + arg;
-		}
-		return voidArgument(result.substring(2));
-	}
+        for (String arg : split) {
+            arguments.add(replaceTypes(arg.trim()));
+        }
 
-	public static void main(String[] args) {
-		try {
-			new TellstickCoreParser(
-					new File("src/main/resources/telldus-core.h"),
-					new File("src/main/java/com/eitraz/tellstick/core/TellstickCoreLibrary.java")
-					);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        String result = "";
+        for (String arg : arguments) {
+            result += ", " + arg;
+        }
+        return voidArgument(result.substring(2));
+    }
+
+    public static void main(String[] args) {
+        try {
+            new TellstickCoreParser(
+                    new File("src/main/resources/telldus-core.h"),
+                    new File("src/main/java/com/eitraz/tellstick/core/TellstickCoreLibrary.java")
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

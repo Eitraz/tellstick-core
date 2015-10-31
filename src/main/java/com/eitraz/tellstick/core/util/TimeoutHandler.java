@@ -1,69 +1,99 @@
 package com.eitraz.tellstick.core.util;
 
+import org.apache.log4j.Logger;
+
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class TimeoutHandler<T> {
-	private static final long DEFAULT_TIMEOUT = 1000;
+    private static final Logger logger = Logger.getLogger(TimeoutHandler.class);
 
-	private final Map<T, Long> cache = new ConcurrentHashMap<T, Long>();
+    private static final long DEFAULT_TIMEOUT = 1000;
 
-	private long timeout;
+    private static final int MAX_CLEAN_TIMEOUT = 600000;
+    private static final long CLEAN_TIMEOUT_MULTIPLIER = 60 * 5;
 
-	public TimeoutHandler() {
-		this(DEFAULT_TIMEOUT);
-	}
+    private long cacheClearTime = System.currentTimeMillis();
+    private final Map<T, Long> cache;
 
-	public TimeoutHandler(long timeout) {
-		this.timeout = timeout;
-	}
+    private long timeout;
 
-	/**
-	 * @return the timeout
-	 */
-	public long getTimeout() {
-		return timeout;
-	}
+    public TimeoutHandler() {
+        this(DEFAULT_TIMEOUT);
+    }
 
-	/**
-	 * @param timeout the timeout to set
-	 */
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
+    public TimeoutHandler(long timeout) {
+        this(timeout, new ConcurrentHashMap<>());
+    }
 
-	/**
-	 * @param string
-	 * @return true if value is timed out
-	 */
-	public synchronized boolean isReady(T value) {
-		// Clean up timed out values
-		clean();
+    public TimeoutHandler(long timeout, Map<T, Long> cache) {
+        setTimeout(timeout);
+        this.cache = cache;
+    }
 
-		// Get timeout value
-		Long timeout = cache.get(value);
+    /**
+     * @return the timeout
+     */
+    public long getTimeout() {
+        return timeout;
+    }
 
-		// Add timeout for value
-		if (timeout == null) {
-			cache.put(value, System.currentTimeMillis() + getTimeout());
-		}
+    /**
+     * @param timeout the timeout to set
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
 
-		// Return true if value is timed out
-		return timeout == null;
-	}
+    /**
+     * @return true if value is timed out
+     */
+    public synchronized boolean isReady(T value) {
+        // Clean up values left behind
+        clean();
 
-	/**
-	 * Clean
-	 */
-	private void clean() {
-		long time = System.currentTimeMillis();
-		for (Entry<T, Long> entry : cache.entrySet()) {
-			// Remove if timed out
-			if (entry.getValue() <= time) {
-				cache.remove(entry.getKey());
-			}
-		}
-	}
+        // Get timeout value
+        Long timeout = cache.get(value);
+
+        long time = System.currentTimeMillis();
+
+        // Timed out
+        if (timeout != null && timeout < time) {
+            timeout = null;
+        }
+
+        if (logger.isTraceEnabled())
+            logger.trace(String.format("'%s' timed out: %s", value, timeout == null));
+
+        // Set timeout value
+        cache.put(value, time + getTimeout());
+
+        // Return true if value is timed out
+        return timeout == null;
+    }
+
+    /**
+     * Clean up values left behind
+     */
+    private void clean() {
+        long time = System.currentTimeMillis();
+
+        // Don't clean to often
+        if (cacheClearTime + Math.min(getTimeout() * CLEAN_TIMEOUT_MULTIPLIER, MAX_CLEAN_TIMEOUT) < time) {
+            if (logger.isDebugEnabled())
+                logger.debug("Cleaning cache (values before clean: " + cache.size());
+
+            // Remove if timed out
+            cache.entrySet().stream()
+                    .filter(entry -> entry.getValue() <= time)
+                    .forEach(entry -> cache.remove(entry.getKey()));
+
+            if (logger.isDebugEnabled())
+                logger.debug("Values after clean: " + cache.size());
+
+            cacheClearTime = time;
+        }
+    }
 
 }
