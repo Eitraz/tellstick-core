@@ -1,6 +1,6 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.tellstick.core.Tellstick;
+import com.eitraz.tellstick.core.TellstickImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 
 @Ignore
 public class DeviceHandlerTest {
-    private Tellstick tellstick = new Tellstick();
+    private TellstickImpl tellstick = new TellstickImpl();
 
     @Before
     public void before() {
