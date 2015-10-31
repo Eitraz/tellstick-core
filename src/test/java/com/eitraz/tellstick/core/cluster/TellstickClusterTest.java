@@ -3,7 +3,6 @@ package com.eitraz.tellstick.core.cluster;
 import com.eitraz.tellstick.core.device.OnOffDevice;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TellstickClusterTest {
