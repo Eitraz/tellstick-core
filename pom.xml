@@ -51,4 +51,11 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>maven-repository</id>
+            <url>https://raw.github.com/Eitraz/maven-repository/master/</url>
+        </repository>
+    </repositories>
 </project>
