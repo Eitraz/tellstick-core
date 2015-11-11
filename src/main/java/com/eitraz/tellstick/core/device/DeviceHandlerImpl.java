@@ -44,29 +44,16 @@ public class DeviceHandlerImpl implements DeviceHandler {
         this.eventRunner = new Runner();
     }
 
-    /**
-     * Add Device Event Listen
-     *
-     * @param listener device event listener
-     */
     @Override
     public void addDeviceEventListener(DeviceEventListener listener) {
         deviceEventListeners.add(listener);
     }
 
-    /**
-     * Remove Device Event Listener
-     *
-     * @param listener device event listener
-     */
     @Override
     public void removeDeviceEventListener(DeviceEventListener listener) {
         deviceEventListeners.remove(listener);
     }
 
-    /**
-     * Start
-     */
     @Override
     public void start() {
         // Device Event Listener
@@ -83,9 +70,6 @@ public class DeviceHandlerImpl implements DeviceHandler {
         eventRunner.start();
     }
 
-    /**
-     * Stop
-     */
     @Override
     public void stop() {
         // Stop event runner
@@ -106,11 +90,6 @@ public class DeviceHandlerImpl implements DeviceHandler {
         }
     }
 
-    /**
-     * Get Devices
-     *
-     * @return devices
-     */
     @Override
     public List<Device> getDevices() {
         logger.trace("Get devices");
@@ -134,13 +113,6 @@ public class DeviceHandlerImpl implements DeviceHandler {
         return devices;
     }
 
-    /**
-     * Get Device
-     *
-     * @param deviceId device ID
-     * @return device
-     * @throws DeviceNotSupportedException
-     */
     @Override
     public Device getDevice(int deviceId) throws DeviceNotSupportedException {
         return createDevice(deviceId);
@@ -210,17 +182,6 @@ public class DeviceHandlerImpl implements DeviceHandler {
         }
     }
 
-    /**
-     * Create device
-     *
-     * @param name       name
-     * @param model      model
-     * @param protocol   protocol
-     * @param parameters parameters
-     * @return device
-     * @throws TellstickException
-     * @throws DeviceNotSupportedException
-     */
     @Override
     public Device createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
         logger.trace("Create add device");
@@ -251,39 +212,16 @@ public class DeviceHandlerImpl implements DeviceHandler {
         return getDevice(deviceId);
     }
 
-    /**
-     * Remove device
-     *
-     * @param deviceId device ID
-     * @return true if device was removed
-     */
     @Override
     public boolean removeDevice(int deviceId) {
         return library.tdRemoveDevice(deviceId);
     }
 
-    /**
-     * Remove device
-     *
-     * @param device device
-     * @return true if device was removed
-     */
-    @Override
-    public boolean removeDevice(Device device) {
-        return removeDevice(device.getDeviceId());
-    }
-
-    /**
-     * @return the supportedMethods
-     */
     @Override
     public int getSupportedMethods() {
         return supportedMethods;
     }
 
-    /**
-     * @return the library
-     */
     @Override
     public TellstickCoreLibrary getLibrary() {
         return library;
