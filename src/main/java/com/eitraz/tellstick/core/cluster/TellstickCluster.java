@@ -31,7 +31,10 @@ public class TellstickCluster extends HazelcastProxy {
         else if (object instanceof DeviceHandler) {
             return DEVICE_HANDLER;
         }
-        return null;
+        // Unhandled
+        else {
+            throw new IllegalArgumentException("Can't create reference for object");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +53,10 @@ public class TellstickCluster extends HazelcastProxy {
         else if (reference.equals(DEVICE_HANDLER)) {
             return (O) tellstick.getDeviceHandler();
         }
-        return null;
+        // Unhandled
+        else {
+            throw new IllegalArgumentException(String.format("Can't create object for reference '%s'", reference));
+        }
     }
 
     public TellstickImpl getTellstick() {
