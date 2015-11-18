@@ -1,9 +1,9 @@
 package com.eitraz.tellstick.core.sensor;
 
+import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDSensorEvent;
 import com.eitraz.tellstick.core.util.Runner;
-import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;

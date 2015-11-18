@@ -1,9 +1,10 @@
 package com.eitraz.tellstick.core.rawdevice;
 
+import com.eitraz.library.Duration;
+import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
 import com.eitraz.tellstick.core.util.Runner;
-import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class RawDeviceHandler {
     private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
 
-    private static final int TIMEOUT = 1000;
+    private static final Duration TIMEOUT = Duration.ONE_SECOND;
 
     private static final String DELIMITER_MAJOR = ";";
     private static final String DELIMITER_MINOR = ":";

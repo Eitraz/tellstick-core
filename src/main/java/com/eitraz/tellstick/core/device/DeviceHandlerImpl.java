@@ -1,12 +1,12 @@
 package com.eitraz.tellstick.core.device;
 
+import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceChangeEvent;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceEvent;
 import com.eitraz.tellstick.core.TellstickException;
 import com.eitraz.tellstick.core.device.impl.*;
 import com.eitraz.tellstick.core.util.Runner;
-import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 

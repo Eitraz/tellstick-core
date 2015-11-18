@@ -1,6 +1,6 @@
 package com.eitraz.tellstick.core.cluster;
 
-import com.eitraz.hazelcast.HazelcastProxy;
+import com.eitraz.library.hazelcast.HazelcastProxy;
 import com.eitraz.tellstick.core.Tellstick;
 import com.eitraz.tellstick.core.TellstickImpl;
 import com.eitraz.tellstick.core.device.Device;
