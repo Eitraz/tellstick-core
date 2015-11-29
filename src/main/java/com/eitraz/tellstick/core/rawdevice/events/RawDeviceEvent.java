@@ -1,6 +1,8 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
-public interface RawDeviceEvent {
+import java.io.Serializable;
+
+public interface RawDeviceEvent extends Serializable {
     String _CLASS = "class";
     String PROTOCOL = "protocol";
     String MODEL = "model";
