@@ -6,9 +6,11 @@ import java.util.Map;
 
 public class RawDeviceEventImpl implements RawDeviceEvent {
     private Map<String, String> parameters;
+    private final long time;
 
     public RawDeviceEventImpl(Map<String, String> parameters) {
         this.parameters = parameters;
+        this.time = System.currentTimeMillis();
     }
 
     @Override
@@ -34,6 +36,11 @@ public class RawDeviceEventImpl implements RawDeviceEvent {
     @Override
     public String getProtocol() {
         return get(PROTOCOL);
+    }
+
+    @Override
+    public long getTime() {
+        return time;
     }
 
     @Override

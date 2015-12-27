@@ -1,6 +1,7 @@
 package com.eitraz.tellstick.core.cluster;
 
 import com.eitraz.tellstick.core.device.OnOffDevice;
+import com.hazelcast.core.Hazelcast;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,7 @@ public class TellstickClusterTest {
 
     @Before
     public void before() {
-        tellstick = new TellstickCluster();
+        tellstick = new TellstickCluster(Hazelcast.newHazelcastInstance());
         tellstick.doStart();
     }
 

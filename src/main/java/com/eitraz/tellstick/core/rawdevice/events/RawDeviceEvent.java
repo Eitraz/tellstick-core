@@ -35,4 +35,6 @@ public interface RawDeviceEvent extends Serializable {
     String getModel();
 
     String getProtocol();
+
+    long getTime();
 }
