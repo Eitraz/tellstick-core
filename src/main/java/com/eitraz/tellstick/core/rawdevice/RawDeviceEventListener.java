@@ -1,7 +1,7 @@
 package com.eitraz.tellstick.core.rawdevice;
 
-import java.util.Map;
+import com.eitraz.tellstick.core.rawdevice.events.RawDeviceEvent;
 
 public interface RawDeviceEventListener {
-    void rawDeviceEvent(Map<String, String> parameters);
+    void rawDeviceEvent(RawDeviceEvent event);
 }

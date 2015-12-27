@@ -6,7 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
+//@Ignore
 public class RawDeviceHandlerTest {
     private static TellstickImpl tellstick;
 
@@ -28,6 +28,6 @@ public class RawDeviceHandlerTest {
     public void testHandleEvent() throws Exception {
         tellstick.getRawDeviceHandler().addRawDeviceEventListener(System.out::println);
 
-        Thread.sleep(30000);
+        Thread.sleep(60000);
     }
 }

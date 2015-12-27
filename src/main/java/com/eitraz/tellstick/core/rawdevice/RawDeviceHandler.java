@@ -4,6 +4,8 @@ import com.eitraz.library.Duration;
 import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
+import com.eitraz.tellstick.core.rawdevice.events.RawDeviceEvent;
+import com.eitraz.tellstick.core.rawdevice.events.impl.*;
 import com.eitraz.tellstick.core.util.Runner;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
@@ -20,24 +22,6 @@ public class RawDeviceHandler {
 
     private static final String DELIMITER_MAJOR = ";";
     private static final String DELIMITER_MINOR = ":";
-
-    public static final String _CLASS = "class";
-    public static final String PROTOCOL = "protocol";
-    public static final String MODEL = "model";
-
-    public static final String COMMAND = "command";
-    public static final String SENSOR = "sensor";
-
-    public static final String ID = "id";
-    public static final String METHOD = "method";
-
-    public static final String HOUSE = "house";
-    public static final String UNIT = "unit";
-    public static final String GROUP = "group";
-
-    public static final String BELL = "bell";
-    public static final String ON = "turnon";
-    public static final String OFF = "turnoff";
 
     private final Set<RawDeviceEventListener> rawDeviceEventListeners = new CopyOnWriteArraySet<>();
 
@@ -108,7 +92,49 @@ public class RawDeviceHandler {
      * @param parameters parameters
      */
     private void fireRawDeviceEvent(final Map<String, String> parameters) {
-        eventRunner.offer(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(parameters)));
+        RawDeviceEvent event = createEvent(parameters);
+
+        eventRunner.offer(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(event)));
+    }
+
+    private RawDeviceEvent createEvent(Map<String, String> parameters) {
+        String _class = parameters.get(RawDeviceEvent._CLASS);
+        String method = parameters.get(RawDeviceEvent.METHOD);
+
+        // Command
+        if (RawDeviceEvent.COMMAND.equalsIgnoreCase(_class)) {
+            // On/Off command
+            if (RawDeviceEvent.ON.equalsIgnoreCase(method) || RawDeviceEvent.OFF.equalsIgnoreCase(method)) {
+                return new RawOnOffCommandEventImpl(parameters);
+            }
+            // Other
+            else {
+                return new RawCommandEventImpl(parameters);
+            }
+        }
+        // Sensor
+        else if (RawDeviceEvent.SENSOR.equalsIgnoreCase(_class)) {
+            // Temperature and humidity
+            if (parameters.get(RawDeviceEvent.TEMP) != null && parameters.get(RawDeviceEvent.HUMIDITY) != null) {
+                return new RawTemperatureHumiditySensorEventImpl(parameters);
+            }
+            // Temperature
+            else if (parameters.get(RawDeviceEvent.TEMP) != null) {
+                return new RawTemperatureSensorEventImpl(parameters);
+            }
+            // Humidity
+            else if (parameters.get(RawDeviceEvent.HUMIDITY) != null) {
+                return new RawHumiditySensorEventImpl(parameters);
+            }
+            // Other
+            else {
+                return new RawSensorEventImpl(parameters);
+            }
+        }
+        // Other
+        else {
+            return new RawDeviceEventImpl(parameters);
+        }
     }
 
     /**

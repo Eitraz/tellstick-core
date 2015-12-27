@@ -5,6 +5,7 @@ import com.eitraz.tellstick.core.Tellstick;
 import com.eitraz.tellstick.core.TellstickImpl;
 import com.eitraz.tellstick.core.device.Device;
 import com.eitraz.tellstick.core.device.DeviceHandler;
+import com.hazelcast.core.HazelcastInstance;
 
 public class TellstickCluster extends HazelcastProxy {
     public static final String DEVICE_PREFIX = "device.";
@@ -13,8 +14,8 @@ public class TellstickCluster extends HazelcastProxy {
 
     private TellstickImpl tellstick;
 
-    public TellstickCluster() {
-        super("tellstick");
+    public TellstickCluster(HazelcastInstance hazelcast) {
+        super(hazelcast, "tellstick");
     }
 
     @Override
