@@ -44,6 +44,11 @@ public class RawDeviceEventImpl implements RawDeviceEvent {
     }
 
     @Override
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    @Override
     public String toString() {
         return hashCode() + " - " + getClass().getSimpleName() + " : " + parameters;
     }

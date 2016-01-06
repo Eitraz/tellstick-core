@@ -1,6 +1,7 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public interface RawDeviceEvent extends Serializable {
     String _CLASS = "class";
@@ -37,4 +38,6 @@ public interface RawDeviceEvent extends Serializable {
     String getProtocol();
 
     long getTime();
+
+    Map<String, String> getParameters();
 }

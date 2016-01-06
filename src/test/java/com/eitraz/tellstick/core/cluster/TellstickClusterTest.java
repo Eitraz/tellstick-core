@@ -25,11 +25,13 @@ public class TellstickClusterTest {
 
     @Test
     public void testToggleDevice() throws Exception {
+        String name = tellstick.getTellstick().getDeviceHandler().getDevices().get(0).getName();
+
         for (int i = 0; i < 2; i++) {
-            tellstick.getProxiedDeviceByName("Test", OnOffDevice.class).on();
+            tellstick.getProxiedDeviceByName(name, OnOffDevice.class).on();
             Thread.sleep(1000);
 
-            tellstick.getProxiedDeviceByName("Test", OnOffDevice.class).off();
+            tellstick.getProxiedDeviceByName(name, OnOffDevice.class).off();
             Thread.sleep(1000);
         }
     }
