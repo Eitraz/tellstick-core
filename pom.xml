@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.eitraz</groupId>
         <artifactId>eitraz-parent</artifactId>
-        <version>[1.0,2.0)</version>
+        <version>1.1-19</version>
     </parent>
 
     <groupId>com.eitraz.tellstick</groupId>
@@ -13,33 +13,17 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <scm>
-        <developerConnection>scm:git:git@github.com:Eitraz/tellstick-core.git</developerConnection>
-    </scm>
-
     <dependencies>
-        <!-- Apache Commons Lang -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
         <!-- Log4j -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
 
-        <!-- JUnit -->
+        <!-- Apache Commons Lang -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-
-        <!-- Awaitility -->
-        <dependency>
-            <groupId>com.jayway.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- JNA -->
@@ -49,17 +33,19 @@
             <version>4.2.0</version>
         </dependency>
 
+        <!-- Eitraz Library -->
         <dependency>
             <groupId>com.eitraz</groupId>
             <artifactId>eitraz-library</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>[1.1-4, 2.0)</version>
         </dependency>
     </dependencies>
 
     <repositories>
         <repository>
-            <id>maven-repository</id>
-            <url>https://raw.github.com/Eitraz/maven-repository/master/</url>
+            <id>eitraz-repository</id>
+            <url>http://repository.eitraz.com</url>
         </repository>
     </repositories>
+
 </project>
