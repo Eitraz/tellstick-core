@@ -4,8 +4,10 @@ import com.eitraz.tellstick.core.device.OnOffDevice;
 import com.hazelcast.core.Hazelcast;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class TellstickClusterTest {
     private TellstickCluster tellstick;
 
