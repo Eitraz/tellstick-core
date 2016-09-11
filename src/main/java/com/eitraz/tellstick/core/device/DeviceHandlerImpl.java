@@ -1,30 +1,34 @@
 package com.eitraz.tellstick.core.device;
 
-import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceChangeEvent;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDDeviceEvent;
 import com.eitraz.tellstick.core.TellstickException;
 import com.eitraz.tellstick.core.device.impl.*;
-import com.eitraz.tellstick.core.util.Runner;
+import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class DeviceHandlerImpl implements DeviceHandler {
     private static final Logger logger = Logger.getLogger(DeviceHandlerImpl.class);
+
+    private static final Duration TIMEOUT = Duration.ofSeconds(1);
 
     private final Set<DeviceEventListener> deviceEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
     private final int supportedMethods;
 
-    private final Runner eventRunner;
+    private final Executor executor = Executors.newFixedThreadPool(4);
 
     private int deviceEventCallbackId = -1;
     private int deviceChangeEventCallbackId = -1;
@@ -41,7 +45,6 @@ public class DeviceHandlerImpl implements DeviceHandler {
     public DeviceHandlerImpl(TellstickCoreLibrary library, int supportedMethods) {
         this.library = library;
         this.supportedMethods = supportedMethods;
-        this.eventRunner = new Runner();
     }
 
     @Override
@@ -65,16 +68,10 @@ public class DeviceHandlerImpl implements DeviceHandler {
         logger.debug("Starting Device Change Event Listener");
         deviceChangeEventListener = new TDDeviceChangeEventListener();
         deviceChangeEventCallbackId = library.tdRegisterDeviceChangeEvent(deviceChangeEventListener, null);
-
-        // Start event runner
-        eventRunner.start();
     }
 
     @Override
     public void stop() {
-        // Stop event runner
-        eventRunner.stop();
-
         // Stop Device Event Listener
         if (deviceEventCallbackId != -1) {
             logger.debug("Stopping Device Event Listener");
@@ -234,7 +231,7 @@ public class DeviceHandlerImpl implements DeviceHandler {
      * @param device   device
      */
     private void fireDeviceChanged(final int deviceId, final Device device) {
-        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceChanged(deviceId, device)));
+        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceChanged(deviceId, device)));
     }
 
     /**
@@ -244,7 +241,7 @@ public class DeviceHandlerImpl implements DeviceHandler {
      * @param device   device
      */
     private void fireDeviceAdded(final int deviceId, final Device device) {
-        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceAdded(deviceId, device)));
+        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceAdded(deviceId, device)));
     }
 
     /**
@@ -253,7 +250,7 @@ public class DeviceHandlerImpl implements DeviceHandler {
      * @param deviceId device ID
      */
     private void fireDeviceRemoved(final int deviceId) {
-        eventRunner.offer(() -> deviceEventListeners.forEach(listener -> listener.deviceRemoved(deviceId)));
+        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceRemoved(deviceId)));
     }
 
     /**
@@ -270,7 +267,7 @@ public class DeviceHandlerImpl implements DeviceHandler {
             // String data = dataPointer.getString(0);
 
             // Don't fire event to often
-            if (!timeoutHandler.isReady(String.format("%d,%d,%s", deviceId, method, data)))
+            if (!timeoutHandler.isReady(String.format("%d,%d,%s", deviceId, method, data), TIMEOUT))
                 return;
 
             // Debug log
@@ -297,7 +294,7 @@ public class DeviceHandlerImpl implements DeviceHandler {
                 logger.trace(String.format("Event: %d", deviceId));
 
             // Don't fire event to often
-            if (!timeoutHandler.isReady(String.format("%d,%d,%d", deviceId, changeEvent, changeType)))
+            if (!timeoutHandler.isReady(String.format("%d,%d,%d", deviceId, changeEvent, changeType), TIMEOUT))
                 return;
 
             // Debug log

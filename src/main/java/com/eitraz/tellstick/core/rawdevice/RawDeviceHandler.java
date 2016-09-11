@@ -1,24 +1,25 @@
 package com.eitraz.tellstick.core.rawdevice;
 
-import com.eitraz.library.Duration;
-import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
 import com.eitraz.tellstick.core.rawdevice.events.RawDeviceEvent;
 import com.eitraz.tellstick.core.rawdevice.events.impl.*;
-import com.eitraz.tellstick.core.util.Runner;
+import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class RawDeviceHandler {
     private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
 
-    private static final Duration TIMEOUT = Duration.ONE_SECOND;
+    private static final Duration TIMEOUT = Duration.ofSeconds(1);
 
     private static final String DELIMITER_MAJOR = ";";
     private static final String DELIMITER_MINOR = ":";
@@ -27,17 +28,16 @@ public class RawDeviceHandler {
 
     private final TellstickCoreLibrary library;
 
-    private final Runner eventRunner;
+    private final Executor executor = Executors.newFixedThreadPool(4);
 
     private int rawDeviceEventCallbackId = -1;
     @SuppressWarnings("FieldCanBeLocal")
     private TDRawDeviceEventListener rawDeviceEventListener;
 
-    private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<>(TIMEOUT);
+    private final TimeoutHandler<String> timeoutHandler = new TimeoutHandler<>();
 
     public RawDeviceHandler(TellstickCoreLibrary library) {
         this.library = library;
-        this.eventRunner = new Runner();
     }
 
     /**
@@ -66,18 +66,12 @@ public class RawDeviceHandler {
         logger.debug("Starting Raw Device Event Listener");
         rawDeviceEventListener = new TDRawDeviceEventListener();
         rawDeviceEventCallbackId = library.tdRegisterRawDeviceEvent(rawDeviceEventListener, null);
-
-        // Start Event Runner
-        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
-        // Stop Event Runner
-        eventRunner.stop();
-
         // Stop Raw Device Event Listener
         if (rawDeviceEventCallbackId != -1) {
             logger.debug("Stopping Raw Device Event Listener");
@@ -94,7 +88,7 @@ public class RawDeviceHandler {
     private void fireRawDeviceEvent(final Map<String, String> parameters) {
         RawDeviceEvent event = createEvent(parameters);
 
-        eventRunner.offer(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(event)));
+        executor.execute(() -> rawDeviceEventListeners.forEach(listener -> listener.rawDeviceEvent(event)));
     }
 
     private RawDeviceEvent createEvent(Map<String, String> parameters) {
@@ -145,7 +139,7 @@ public class RawDeviceHandler {
         // String data = dataPointer.getString(0);
 
         // Don't fire event to often
-        if (!timeoutHandler.isReady(data))
+        if (!timeoutHandler.isReady(data, TIMEOUT))
             return;
 
         // Debug log
