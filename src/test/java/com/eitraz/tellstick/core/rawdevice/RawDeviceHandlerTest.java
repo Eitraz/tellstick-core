@@ -1,18 +1,17 @@
 package com.eitraz.tellstick.core.rawdevice;
 
-import com.eitraz.tellstick.core.TellstickImpl;
+import com.eitraz.tellstick.core.Tellstick;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 //@Ignore
 public class RawDeviceHandlerTest {
-    private static TellstickImpl tellstick;
+    private static Tellstick tellstick;
 
     @BeforeClass
     public static void beforeClass() {
-        tellstick = new TellstickImpl();
+        tellstick = new Tellstick();
         tellstick.start();
     }
 

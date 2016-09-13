@@ -2,8 +2,7 @@ package com.eitraz.tellstick.core.rawdevice;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
-import com.eitraz.tellstick.core.rawdevice.events.RawDeviceEvent;
-import com.eitraz.tellstick.core.rawdevice.events.impl.*;
+import com.eitraz.tellstick.core.rawdevice.events.*;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
 import org.apache.log4j.Logger;
@@ -99,35 +98,35 @@ public class RawDeviceHandler {
         if (RawDeviceEvent.COMMAND.equalsIgnoreCase(_class)) {
             // On/Off command
             if (RawDeviceEvent.ON.equalsIgnoreCase(method) || RawDeviceEvent.OFF.equalsIgnoreCase(method)) {
-                return new RawOnOffCommandEventImpl(parameters);
+                return new RawOnOffCommandEvent(parameters);
             }
             // Other
             else {
-                return new RawCommandEventImpl(parameters);
+                return new RawCommandEvent(parameters);
             }
         }
         // Sensor
         else if (RawDeviceEvent.SENSOR.equalsIgnoreCase(_class)) {
             // Temperature and humidity
             if (parameters.get(RawDeviceEvent.TEMP) != null && parameters.get(RawDeviceEvent.HUMIDITY) != null) {
-                return new RawTemperatureHumiditySensorEventImpl(parameters);
+                return new RawTemperatureHumiditySensorEvent(parameters);
             }
             // Temperature
             else if (parameters.get(RawDeviceEvent.TEMP) != null) {
-                return new RawTemperatureSensorEventImpl(parameters);
+                return new RawTemperatureSensorEvent(parameters);
             }
             // Humidity
             else if (parameters.get(RawDeviceEvent.HUMIDITY) != null) {
-                return new RawHumiditySensorEventImpl(parameters);
+                return new RawHumiditySensorEvent(parameters);
             }
             // Other
             else {
-                return new RawSensorEventImpl(parameters);
+                return new RawSensorEvent(parameters);
             }
         }
         // Other
         else {
-            return new RawDeviceEventImpl(parameters);
+            return new RawDeviceEvent(parameters);
         }
     }
 
