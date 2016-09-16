@@ -11,7 +11,7 @@ public class SceneDevice extends Device {
     }
 
     public void execute() throws DeviceException {
-        logger.debug("EXECUTE " + toString());
+        logger.info("EXECUTE " + toString());
 
         int status = getLibrary().tdExecute(getDeviceId());
 

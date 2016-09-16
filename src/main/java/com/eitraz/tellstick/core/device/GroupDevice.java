@@ -43,7 +43,7 @@ public class GroupDevice extends Device {
     }
 
     public void on() {
-        logger.debug("ON " + toString());
+        logger.info("ON " + toString());
 
         for (Device device : getDevices()) {
             try {
@@ -62,7 +62,7 @@ public class GroupDevice extends Device {
     }
 
     public void off() {
-        logger.debug("ON " + toString());
+        logger.info("ON " + toString());
 
         for (Device device : getDevices()) {
             try {

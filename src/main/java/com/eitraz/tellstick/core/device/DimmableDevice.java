@@ -11,12 +11,22 @@ public class DimmableDevice extends Device {
     }
 
     public void dim(int level) throws DeviceException {
-        logger.debug("DIM " + level + " " + toString());
+        logger.info("DIM {} {}", level, toString());
 
         if (level < 0 || level > 255)
             throw new IllegalArgumentException("Dim level must be between 0 and 255.");
 
-        int status = getLibrary().tdDim(getDeviceId(), level);
+        int status;
+
+        // Turn off
+        if (level == 0) {
+            status = getLibrary().tdTurnOff(getDeviceId());
+        }
+        // Set dim level (need to turn on?)
+        else {
+            status = getLibrary().tdDim(getDeviceId(), level);
+        }
+
         if (status != TellstickCoreLibrary.TELLSTICK_SUCCESS)
             throw new DeviceException(this, status);
     }
@@ -31,6 +41,10 @@ public class DimmableDevice extends Device {
 
     public boolean isOn() {
         boolean isOn = (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
-        return isOn || ((TellstickCoreLibrary.TELLSTICK_DIM & getStatus()) > 0);
+        return isOn || ((getStatus() & TellstickCoreLibrary.TELLSTICK_DIM) > 0);
+    }
+
+    public boolean isOff() {
+        return !isOn();
     }
 }

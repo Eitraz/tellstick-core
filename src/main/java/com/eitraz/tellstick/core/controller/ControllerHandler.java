@@ -3,7 +3,8 @@ package com.eitraz.tellstick.core.controller;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDControllerEvent;
 import com.sun.jna.Pointer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -11,13 +12,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class ControllerHandler {
-    private static final Logger logger = Logger.getLogger(ControllerHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final Set<ControllerEventListener> controllerEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
 
-    private final Executor executor = Executors.newFixedThreadPool(4);
+    private final Executor executor = Executors.newFixedThreadPool(1);
 
     private int controllerEventCallbackId = -1;
 

@@ -11,7 +11,7 @@ public class BellDevice extends Device {
     }
 
     public void bell() throws DeviceException {
-        logger.debug("BELL " + toString());
+        logger.info("BELL {}", toString());
 
         int status = getLibrary().tdBell(getDeviceId());
 

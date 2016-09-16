@@ -4,28 +4,28 @@ import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickException;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("WeakerAccess")
 public class DeviceHandler {
-    private static final Logger logger = Logger.getLogger(DeviceHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private static final Duration TIMEOUT = Duration.ofSeconds(1);
 
     private final Set<DeviceEventListener> deviceEventListeners = new CopyOnWriteArraySet<>();
+    private final Set<DeviceChangeEventListener> deviceChangeEventListeners = new CopyOnWriteArraySet<>();
 
     private final TellstickCoreLibrary library;
     private final int supportedMethods;
 
-    private final Executor executor = Executors.newFixedThreadPool(4);
+    private final Executor executor = Executors.newFixedThreadPool(1);
 
     private int deviceEventCallbackId = -1;
     private int deviceChangeEventCallbackId = -1;
@@ -50,6 +50,14 @@ public class DeviceHandler {
 
     public void removeDeviceEventListener(DeviceEventListener listener) {
         deviceEventListeners.remove(listener);
+    }
+
+    public void addDeviceChangeEventListener(DeviceChangeEventListener listener) {
+        deviceChangeEventListeners.add(listener);
+    }
+
+    public void removeDeviceChangeEventListener(DeviceChangeEventListener listener) {
+        deviceChangeEventListeners.remove(listener);
     }
 
     public void start() {
@@ -88,28 +96,30 @@ public class DeviceHandler {
         logger.trace("Get number of devices");
         int numDevices = library.tdGetNumberOfDevices();
         for (int i = 0; i < numDevices; i++) {
-            logger.trace("Get device id " + i);
+            logger.trace("Get device id {}", i);
 
             int deviceId = library.tdGetDeviceId(i);
 
             try {
                 devices.add(getDevice(deviceId));
             } catch (DeviceNotSupportedException e) {
-                logger.warn("Device #" + deviceId + " is not supported.");
+                logger.warn("Device #{} is not supported.", deviceId, e);
             }
         }
 
         return devices;
     }
 
-    public Device getDevice(int deviceId) throws DeviceNotSupportedException {
+    public <T extends Device> T getDevice(int deviceId) throws DeviceNotSupportedException {
         return createDevice(deviceId);
-//        Device device = devices.get(deviceId);
-//        if (device == null) {
-//            device = createDevice(deviceId);
-//            devices.put(deviceId, device);
-//        }
-//        return device;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Device> Optional<T> getDeviceByName(String name) {
+        return getDevices().stream()
+                .filter(d -> name.equals(d.getName()))
+                .map(d -> (T)d)
+                .findFirst();
     }
 
     /**
@@ -117,51 +127,51 @@ public class DeviceHandler {
      *
      * @param deviceId device ID
      * @return device
-     * @throws DeviceNotSupportedException
      */
-    private Device createDevice(int deviceId) throws DeviceNotSupportedException {
-        logger.trace("Create device " + deviceId);
+    @SuppressWarnings("unchecked")
+    private <T extends Device> T createDevice(int deviceId) throws DeviceNotSupportedException {
+        logger.trace("Create device {}", deviceId);
         int methods = library.tdMethods(deviceId, getSupportedMethods());
 
-        logger.trace("Get device type " + deviceId);
+        logger.trace("Get device type {}", deviceId);
         int type = library.tdGetDeviceType(deviceId);
 
         // Group Device
         if (type == TellstickCoreLibrary.TELLSTICK_TYPE_GROUP) {
-            return new GroupDevice(this, deviceId);
+            return (T) new GroupDevice(this, deviceId);
         }
 
         // Scene Device
         else if (type == TellstickCoreLibrary.TELLSTICK_TYPE_SCENE) {
-            return new SceneDevice(this, deviceId);
+            return (T) new SceneDevice(this, deviceId);
         }
 
         // Bell Device
         else if ((methods & TellstickCoreLibrary.TELLSTICK_BELL) > 0) {
-            return new BellDevice(this, deviceId);
+            return (T) new BellDevice(this, deviceId);
         }
 
         // Dimmable Device
         else if ((methods & TellstickCoreLibrary.TELLSTICK_DIM) > 0) {
-            return new DimmableDevice(this, deviceId);
+            return (T) new DimmableDevice(this, deviceId);
         }
 
         // Up / Down Device
         else if ((methods & TellstickCoreLibrary.TELLSTICK_UP) > 0 &&
                 (methods & TellstickCoreLibrary.TELLSTICK_DOWN) > 0 &&
                 (methods & TellstickCoreLibrary.TELLSTICK_STOP) > 0) {
-            return new UpDownDevice(this, deviceId);
+            return (T) new UpDownDevice(this, deviceId);
         }
 
         // On / Off Device
         else if ((methods & TellstickCoreLibrary.TELLSTICK_TURNON) > 0 &&
                 (methods & TellstickCoreLibrary.TELLSTICK_TURNOFF) > 0) {
-            return new OnOffDevice(this, deviceId);
+            return (T) new OnOffDevice(this, deviceId);
         }
 
         // Scene Device
         else if ((methods & TellstickCoreLibrary.TELLSTICK_EXECUTE) > 0) {
-            return new SceneDevice(this, deviceId);
+            return (T) new SceneDevice(this, deviceId);
         }
 
         // Not supported
@@ -170,7 +180,8 @@ public class DeviceHandler {
         }
     }
 
-    public Device createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
+    @SuppressWarnings("unchecked")
+    public <T extends Device> T createDevice(String name, String model, String protocol, Map<String, String> parameters) throws TellstickException, DeviceNotSupportedException {
         logger.trace("Create add device");
 
         int deviceId = library.tdAddDevice();
@@ -192,11 +203,12 @@ public class DeviceHandler {
             logger.error("Unable to set device protocol");
 
         // Set Parameters
-        parameters.entrySet().stream()
-                .filter(entry -> !library.tdSetDeviceParameter(deviceId, entry.getKey(), entry.getValue()))
-                .forEach(entry -> logger.error(String.format("Unable to set parameter '%s'", entry.getKey())));
+        parameters.entrySet().forEach(entry -> {
+            if (!library.tdSetDeviceParameter(deviceId, entry.getKey(), entry.getValue()))
+                logger.error("Unable to set parameter '{}'", entry.getKey());
+        });
 
-        return getDevice(deviceId);
+        return (T) getDevice(deviceId);
     }
 
     public boolean removeDevice(int deviceId) {
@@ -216,13 +228,26 @@ public class DeviceHandler {
     }
 
     /**
-     * Fire Device Changed
+     * Fire device Event
      *
      * @param deviceId device ID
      * @param device   device
+     * @param method   The new device state. Can be {@link TellstickCoreLibrary#TELLSTICK_TURNON}, {@link TellstickCoreLibrary#TELLSTICK_TURNOFF}, etc
+     * @param data     If method is {@link TellstickCoreLibrary#TELLSTICK_DIM} this holds the current value as human readable string, example "128" or 50%
      */
-    private void fireDeviceChanged(final int deviceId, final Device device) {
-        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceChanged(deviceId, device)));
+    private void fireDeviceEvent(final int deviceId, final Device device, final int method, final String data) {
+        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceEvent(deviceId, device, method, data)));
+    }
+
+    /**
+     * Fire Device Changed
+     *
+     * @param deviceId   device ID
+     * @param device     device
+     * @param changeType Indicates what has changed  (e.g {@link TellstickCoreLibrary#TELLSTICK_CHANGE_NAME}, {@link TellstickCoreLibrary#TELLSTICK_CHANGE_PROTOCOL}, {@link TellstickCoreLibrary#TELLSTICK_CHANGE_MODEL} or {@link TellstickCoreLibrary#TELLSTICK_CHANGE_METHOD})
+     */
+    private void fireDeviceChanged(final int deviceId, final Device device, final int changeType) {
+        executor.execute(() -> deviceChangeEventListeners.forEach(listener -> listener.deviceChanged(deviceId, device, changeType)));
     }
 
     /**
@@ -232,7 +257,7 @@ public class DeviceHandler {
      * @param device   device
      */
     private void fireDeviceAdded(final int deviceId, final Device device) {
-        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceAdded(deviceId, device)));
+        executor.execute(() -> deviceChangeEventListeners.forEach(listener -> listener.deviceAdded(deviceId, device)));
     }
 
     /**
@@ -241,7 +266,7 @@ public class DeviceHandler {
      * @param deviceId device ID
      */
     private void fireDeviceRemoved(final int deviceId) {
-        executor.execute(() -> deviceEventListeners.forEach(listener -> listener.deviceRemoved(deviceId)));
+        executor.execute(() -> deviceChangeEventListeners.forEach(listener -> listener.deviceRemoved(deviceId)));
     }
 
     /**
@@ -252,8 +277,7 @@ public class DeviceHandler {
 
         @Override
         public void event(int deviceId, int method, String data, int callbackId, Pointer context) {
-            if (logger.isTraceEnabled())
-                logger.trace(String.format("Event: %d, %d", deviceId, method));
+            logger.trace("Event: {}, {}", deviceId, method);
 
             // String data = dataPointer.getString(0);
 
@@ -262,13 +286,12 @@ public class DeviceHandler {
                 return;
 
             // Debug log
-            if (logger.isDebugEnabled())
-                logger.debug(String.format("DeviceId=%d, method=%d, data=%s", deviceId, method, data));
+            logger.debug("Event: DeviceId={}, method={}, data={}", deviceId, method, data);
 
             try {
-                fireDeviceChanged(deviceId, getDevice(deviceId));
+                fireDeviceEvent(deviceId, getDevice(deviceId), method, data);
             } catch (DeviceNotSupportedException e) {
-                logger.warn(String.format("Device #%d is not supported.", deviceId));
+                logger.warn("Device #{} is not supported.", deviceId);
             }
         }
     }
@@ -281,23 +304,21 @@ public class DeviceHandler {
 
         @Override
         public void event(int deviceId, int changeEvent, int changeType, int callbackId, Pointer context) {
-            if (logger.isTraceEnabled())
-                logger.trace(String.format("Event: %d", deviceId));
+            logger.trace("ChangeEvent: {}", deviceId);
 
             // Don't fire event to often
             if (!timeoutHandler.isReady(String.format("%d,%d,%d", deviceId, changeEvent, changeType), TIMEOUT))
                 return;
 
             // Debug log
-            if (logger.isDebugEnabled())
-                logger.debug(String.format("DeviceId=%d, changeEvent=%d, changeType=%d", deviceId, changeEvent, changeType));
+            logger.debug("ChangeEvent: DeviceId={}, changeEvent={}, changeType={}", deviceId, changeEvent, changeType);
 
             // Device Changed
             if (changeEvent == TellstickCoreLibrary.TELLSTICK_DEVICE_CHANGED || changeEvent == TellstickCoreLibrary.TELLSTICK_DEVICE_STATE_CHANGED) {
                 try {
-                    fireDeviceChanged(deviceId, getDevice(deviceId));
+                    fireDeviceChanged(deviceId, getDevice(deviceId), changeType);
                 } catch (DeviceNotSupportedException e) {
-                    logger.warn(String.format("Device #%d is not supported.", deviceId));
+                    logger.warn("Device #{} is not supported.", deviceId, e);
                 }
             }
             // Device Added
@@ -305,7 +326,7 @@ public class DeviceHandler {
                 try {
                     fireDeviceAdded(deviceId, getDevice(deviceId));
                 } catch (DeviceNotSupportedException e) {
-                    logger.warn(String.format("Device #%d is not supported.", deviceId));
+                    logger.warn("Device #{} is not supported.", deviceId, e);
                 }
             }
             // Device Removed
@@ -314,7 +335,7 @@ public class DeviceHandler {
             }
             // Unhandled event
             else {
-                logger.error(String.format("Unhandled Device Change Event '%d'", changeEvent));
+                logger.error("Unhandled Device Change Event '{}'", changeEvent);
             }
         }
     }

@@ -5,7 +5,8 @@ import com.eitraz.tellstick.core.TellstickCoreLibrary.TDRawDeviceEvent;
 import com.eitraz.tellstick.core.rawdevice.events.*;
 import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Pointer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class RawDeviceHandler {
-    private static final Logger logger = Logger.getLogger(RawDeviceHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private static final Duration TIMEOUT = Duration.ofSeconds(1);
 
@@ -27,7 +28,7 @@ public class RawDeviceHandler {
 
     private final TellstickCoreLibrary library;
 
-    private final Executor executor = Executors.newFixedThreadPool(4);
+    private final Executor executor = Executors.newFixedThreadPool(1);
 
     private int rawDeviceEventCallbackId = -1;
     @SuppressWarnings("FieldCanBeLocal")
@@ -164,8 +165,7 @@ public class RawDeviceHandler {
     private class TDRawDeviceEventListener implements TDRawDeviceEvent {
         @Override
         public void event(String data, int controllerId, int callbackId, Pointer context) {
-            if (logger.isTraceEnabled())
-                logger.trace(String.format("event: %s", data));
+            logger.trace("event: {}", () -> data);
 
             handleEvent(controllerId, data);
         }

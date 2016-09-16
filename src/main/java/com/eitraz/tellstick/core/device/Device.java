@@ -2,13 +2,15 @@ package com.eitraz.tellstick.core.device;
 
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.sun.jna.Pointer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Device
  */
+@SuppressWarnings("WeakerAccess")
 public class Device implements Comparable<Device> {
-    protected static final Logger logger = Logger.getLogger(Device.class);
+    protected static final Logger logger = LogManager.getLogger();
 
     private final DeviceHandler deviceHandler;
     private final TellstickCoreLibrary library;
@@ -75,12 +77,23 @@ public class Device implements Comparable<Device> {
         return protocol;
     }
 
+    public String getParameter(String key) {
+        logger.trace("Get parameter " + deviceId + ", " + key);
+        Pointer pointer = library.tdGetDeviceParameter(deviceId, key, "");
+        String value = pointer.getString(0);
+
+        logger.trace("Release parameter " + deviceId);
+        library.tdReleaseString(pointer);
+
+        return value;
+    }
+
     public int getDeviceType() {
         return deviceType;
     }
 
     public int getStatus() {
-        logger.trace("Get status " + deviceId);
+        logger.trace("Get status {}", deviceId);
 
         return library.tdLastSentCommand(deviceId, deviceHandler.getSupportedMethods());
     }
@@ -105,15 +118,14 @@ public class Device implements Comparable<Device> {
 
     @Override
     public String toString() {
-        return "Device [deviceId=" + deviceId + ", name=" + name + ", model="
-                + model + ", protocol=" + protocol + ", deviceType="
-                + deviceType + ", getClass()=" + getClass().getSimpleName() + "]";
+        return String.format("%s [deviceId=%d, name=%s, model=%s, protocol=%s, deviceType=%d]",
+                getClass().getSimpleName(), deviceId, name, model, protocol, deviceType);
     }
 
     @Override
     public int compareTo(Device device) {
-        // Device or device name is null
-        if (device == null || device.getName() == null) {
+        // Device name is null
+        if (device.getName() == null) {
             return getName().compareTo("");
         }
         // Compare device names
@@ -130,6 +142,7 @@ public class Device implements Comparable<Device> {
         Device device = (Device) o;
 
         return deviceId == device.getDeviceId();
+
     }
 
     @Override

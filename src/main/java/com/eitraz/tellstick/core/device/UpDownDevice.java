@@ -11,7 +11,7 @@ public class UpDownDevice extends Device {
     }
 
     public void up() throws DeviceException {
-        logger.debug("UP " + toString());
+        logger.info("UP " + toString());
 
         int status = getLibrary().tdUp(getDeviceId());
 
@@ -20,7 +20,7 @@ public class UpDownDevice extends Device {
     }
 
     public void down() throws DeviceException {
-        logger.debug("DOWN " + toString());
+        logger.info("DOWN " + toString());
 
         int status = getLibrary().tdDown(getDeviceId());
 
@@ -29,7 +29,7 @@ public class UpDownDevice extends Device {
     }
 
     public void stop() throws DeviceException {
-        logger.debug("STOP " + toString());
+        logger.info("STOP " + toString());
 
         int status = getLibrary().tdStop(getDeviceId());
 

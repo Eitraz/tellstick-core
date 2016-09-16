@@ -1,15 +1,16 @@
 package com.eitraz.tellstick.core;
 
-import com.eitraz.tellstick.core.device.Device;
 import com.eitraz.tellstick.core.device.DeviceHandler;
 import com.eitraz.tellstick.core.rawdevice.RawDeviceHandler;
 import com.eitraz.tellstick.core.sensor.SensorHandler;
 import com.sun.jna.Native;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+@SuppressWarnings("WeakerAccess")
 public class Tellstick {
-    private static final Logger logger = Logger.getLogger(Tellstick.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private static final int SUPPORTED_METHODS =
             TellstickCoreLibrary.TELLSTICK_BELL |
@@ -39,9 +40,6 @@ public class Tellstick {
     public Tellstick() {
     }
 
-    /**
-     * Start
-     */
     public void start() {
         String osName = System.getProperty("os.name");
         String osArch = System.getProperty("os.arch");
@@ -51,7 +49,16 @@ public class Tellstick {
 
         // Load library
         logger.debug("Loading library");
-        library = (TellstickCoreLibrary) Native.loadLibrary(nativeLibrary, TellstickCoreLibrary.class);
+        TellstickCoreLibrary library = (TellstickCoreLibrary) Native.loadLibrary(nativeLibrary, TellstickCoreLibrary.class);
+        start(library);
+    }
+
+    /**
+     * Start
+     */
+    public void start(TellstickCoreLibrary library) {
+        this.library = library;
+
         library.tdInit();
 
         // Create Device Handler
@@ -132,24 +139,10 @@ public class Tellstick {
     }
 
     /**
-     * @param deviceHandler the deviceHandler to set
-     */
-    public void setDeviceHandler(DeviceHandler deviceHandler) {
-        this.deviceHandler = deviceHandler;
-    }
-
-    /**
      * @return the rawDeviceHandler
      */
     public RawDeviceHandler getRawDeviceHandler() {
         return rawDeviceHandler;
-    }
-
-    /**
-     * @param rawDeviceHandler the rawDeviceHandler to set
-     */
-    public void setRawDeviceHandler(RawDeviceHandler rawDeviceHandler) {
-        this.rawDeviceHandler = rawDeviceHandler;
     }
 
     /**
@@ -164,21 +157,5 @@ public class Tellstick {
      */
     public SensorHandler getSensorHandler() {
         return sensorHandler;
-    }
-
-    /**
-     * @param sensorHandler the sensorHandler to set
-     */
-    public void setSensorHandler(SensorHandler sensorHandler) {
-        this.sensorHandler = sensorHandler;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Device> T getDeviceByName(String name) {
-        for (Device device : getDeviceHandler().getDevices()) {
-            if (name.equals(device.getName()))
-                return (T) device;
-        }
-        return null;
     }
 }

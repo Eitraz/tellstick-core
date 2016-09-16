@@ -11,7 +11,7 @@ public class OnOffDevice extends Device {
     }
 
     public void on() throws DeviceException {
-        logger.debug("ON " + toString());
+        logger.info("ON {}", toString());
 
         int status = getLibrary().tdTurnOn(getDeviceId());
 
@@ -20,7 +20,7 @@ public class OnOffDevice extends Device {
     }
 
     public void off() throws DeviceException {
-        logger.debug("OFF " + toString());
+        logger.info("OFF {}", toString());
 
         int status = getLibrary().tdTurnOff(getDeviceId());
 
@@ -30,5 +30,9 @@ public class OnOffDevice extends Device {
 
     public boolean isOn() {
         return (getStatus() & TellstickCoreLibrary.TELLSTICK_TURNON) > 0;
+    }
+
+    public boolean isOff() {
+        return !isOn();
     }
 }
