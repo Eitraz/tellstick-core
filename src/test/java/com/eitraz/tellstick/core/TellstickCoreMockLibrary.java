@@ -366,7 +366,20 @@ public class TellstickCoreMockLibrary implements TellstickCoreLibrary {
 
     @Override
     public int tdSensorValue(String protocol, String model, int id, int dataType, Pointer value, int len, IntByReference timestamp) {
-        throw new UnsupportedOperationException("Not implemented");
+        SensorMock sensor = sensors.stream()
+                .filter(s -> protocol.equals(s.protocol) && model.equals(s.model) && id == s.id && s.values.containsKey(dataType))
+                .findFirst()
+                .orElse(null);
+
+        // Not found
+        if (sensor == null) {
+            return TELLSTICK_ERROR_NOT_FOUND;
+        }
+
+        value.setString(0, sensor.values.get(dataType));
+        timestamp.setValue(sensor.lastTimestamp);
+
+        return TELLSTICK_SUCCESS;
     }
 
     @Override
@@ -389,8 +402,10 @@ public class TellstickCoreMockLibrary implements TellstickCoreLibrary {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public void addSensor(int id, int dataTypes, String protocol, String model) {
-        sensors.add(new SensorMock(id, dataTypes, protocol, model));
+    public SensorMock createSensor(int id, int dataTypes, String protocol, String model) {
+        SensorMock sensor = new SensorMock(id, dataTypes, protocol, model);
+        sensors.add(sensor);
+        return sensor;
     }
 
     public void fireDeviceEvent(int deviceId, int method, String data) {
@@ -442,11 +457,24 @@ public class TellstickCoreMockLibrary implements TellstickCoreLibrary {
         public final String protocol;
         public final String model;
 
+        public int lastTimestamp;
+        public Map<Integer, String> values = new HashMap<>();
+
         public SensorMock(int id, int dataTypes, String protocol, String model) {
             this.id = id;
             this.dataTypes = dataTypes;
             this.protocol = protocol;
             this.model = model;
+        }
+
+        public void setValue(int dataType, String value) {
+            if ((dataType & dataTypes) == 0)
+                throw new RuntimeException("DataType " + dataType + " not supported by this SensorMock");
+
+            values.put(dataType, value);
+            lastTimestamp = (int) (System.currentTimeMillis() / 1000);
+
+            fireSensorEvent(protocol, model, id, dataType, value, lastTimestamp);
         }
     }
 }

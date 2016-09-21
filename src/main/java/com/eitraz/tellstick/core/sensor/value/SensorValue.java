@@ -45,4 +45,13 @@ public class SensorValue {
             return (T) new SensorValue(dataType, value, time);
         }
     }
+
+    @Override
+    public String toString() {
+        return "SensorValue{" +
+                "dataType=" + dataType +
+                ", value='" + value + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }
