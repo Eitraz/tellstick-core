@@ -16,14 +16,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.5.1</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
 
     <dependencies>
@@ -71,7 +70,7 @@
         <dependency>
             <groupId>com.jayway.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>1.6.4</version>
+            <version>1.7.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -98,7 +97,6 @@
             <version>3.5.2</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 </project>
