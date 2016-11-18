@@ -1,5 +1,14 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
-public interface RawTemperatureSensorEvent extends RawSensorEvent {
-    Double getTemperature();
+import java.util.Map;
+
+public class RawTemperatureSensorEvent extends RawSensorEvent {
+
+    public RawTemperatureSensorEvent(Map<String, String> parameters) {
+        super(parameters);
+    }
+
+    public Double getTemperature() {
+        return Double.valueOf(get(TEMP));
+    }
 }

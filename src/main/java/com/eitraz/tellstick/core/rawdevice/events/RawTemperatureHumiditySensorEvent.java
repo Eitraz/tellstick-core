@@ -2,8 +2,9 @@ package com.eitraz.tellstick.core.rawdevice.events;
 
 import java.util.Map;
 
-public class RawHumiditySensorEvent extends RawSensorEvent {
-    public RawHumiditySensorEvent(Map<String, String> parameters) {
+public class RawTemperatureHumiditySensorEvent extends RawTemperatureSensorEvent {
+
+    public RawTemperatureHumiditySensorEvent(Map<String, String> parameters) {
         super(parameters);
     }
 

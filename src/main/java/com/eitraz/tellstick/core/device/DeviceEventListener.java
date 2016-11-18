@@ -1,27 +1,16 @@
 package com.eitraz.tellstick.core.device;
 
+import com.eitraz.tellstick.core.TellstickCoreLibrary;
 
+@SuppressWarnings("WeakerAccess")
 public interface DeviceEventListener {
     /**
-     * Device Changed
+     * Device event
      *
      * @param deviceId device ID
-     * @param device device
+     * @param device   device
+     * @param method   The new device state. Can be {@link TellstickCoreLibrary#TELLSTICK_TURNON}, {@link TellstickCoreLibrary#TELLSTICK_TURNOFF}, etc
+     * @param data     If method is {@link TellstickCoreLibrary#TELLSTICK_DIM} this holds the current value as human readable string, example "128" or 50%
      */
-    void deviceChanged(int deviceId, Device device);
-
-    /**
-     * Device Added
-     *
-     * @param deviceId device ID
-     * @param device device
-     */
-    void deviceAdded(int deviceId, Device device);
-
-    /**
-     * Device Removed
-     *
-     * @param deviceId device ID
-     */
-    void deviceRemoved(int deviceId);
+    void deviceEvent(int deviceId, Device device, int method, String data);
 }

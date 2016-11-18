@@ -1,7 +1,17 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
-public interface RawOnOffCommandEvent {
-    boolean isTurnOff();
+import java.util.Map;
 
-    boolean isTurnOn();
+public class RawOnOffCommandEvent extends RawCommandEvent {
+    public RawOnOffCommandEvent(Map<String, String> parameters) {
+        super(parameters);
+    }
+
+    public boolean isTurnOff() {
+        return OFF.equalsIgnoreCase(getMethod());
+    }
+
+    public boolean isTurnOn() {
+        return ON.equalsIgnoreCase(getMethod());
+    }
 }

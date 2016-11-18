@@ -11,7 +11,7 @@ import java.util.List;
 public class TellstickTestCase {
     @Test
     public void testGetDevices() {
-        TellstickImpl tellstick = new TellstickImpl();
+        Tellstick tellstick = new Tellstick();
         try {
             tellstick.start();
 

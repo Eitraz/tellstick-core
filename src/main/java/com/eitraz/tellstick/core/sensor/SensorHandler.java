@@ -1,21 +1,26 @@
 package com.eitraz.tellstick.core.sensor;
 
-import com.eitraz.library.TimeoutHandler;
 import com.eitraz.tellstick.core.TellstickCoreLibrary;
 import com.eitraz.tellstick.core.TellstickCoreLibrary.TDSensorEvent;
-import com.eitraz.tellstick.core.util.Runner;
+import com.eitraz.tellstick.core.sensor.value.SensorValue;
+import com.eitraz.tellstick.core.util.TimeoutHandler;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class SensorHandler {
-    private static final Logger logger = Logger.getLogger(SensorHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final int[] DATA_TYPES = new int[]{
             TellstickCoreLibrary.TELLSTICK_TEMPERATURE,
@@ -29,10 +34,12 @@ public class SensorHandler {
 
     private final Set<SensorEventListener> sensorEventListeners = new CopyOnWriteArraySet<>();
 
+    private static final Duration TIMEOUT = Duration.ofSeconds(1);
+
     private final TellstickCoreLibrary library;
     private final int supportedDataTypes;
 
-    private final Runner eventRunner;
+    private final Executor executor = Executors.newFixedThreadPool(1);
 
     private int sensorEventCallbackId = -1;
     @SuppressWarnings("FieldCanBeLocal")
@@ -41,7 +48,6 @@ public class SensorHandler {
     public SensorHandler(TellstickCoreLibrary library, int supportedDataTypes) {
         this.library = library;
         this.supportedDataTypes = supportedDataTypes;
-        this.eventRunner = new Runner();
     }
 
     /**
@@ -77,18 +83,12 @@ public class SensorHandler {
         logger.debug("Starting Sensor Event Listener");
         sensorEventListener = new TDSensorEventListener();
         sensorEventCallbackId = library.tdRegisterSensorEvent(sensorEventListener, null);
-
-        // Start Event Runner
-        eventRunner.start();
     }
 
     /**
      * Stop
      */
     public void stop() {
-        // Stop Event Runner
-        eventRunner.stop();
-
         // Stop Sensor Event Listener
         if (sensorEventCallbackId != -1) {
             logger.debug("Stopping Sensor Event Listener");
@@ -97,21 +97,16 @@ public class SensorHandler {
         }
     }
 
-    /**
-     * Get Sensor
-     *
-     * @param id       id
-     * @param protocol protocol
-     * @param model    model
-     * @param dataType data type
-     * @param value    value
-     * @return sensor
-     */
-    private Sensor getSensor(int id, String protocol, String model, int dataType, String value, long timestamp) {
-        if (dataType == TellstickCoreLibrary.TELLSTICK_TEMPERATURE)
-            return new TemperatureSensor(id, protocol, model, value, timestamp);
-        else
-            return new Sensor(id, protocol, model, dataType, value, timestamp);
+    public TellstickCoreLibrary getLibrary() {
+        return library;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends SensorValue> Optional<Sensor<T>> getSensor(int id, int dataType) {
+        return getSensors().stream()
+                .filter(s -> s.getId() == id && s.getDataType() == dataType)
+                .map(s -> (Sensor<T>) s)
+                .findFirst();
     }
 
     /**
@@ -137,18 +132,10 @@ public class SensorHandler {
             String model = modelPointer.getString(0);
             int dataTypes = dataTypesReference.getValue();
 
-            int valueLen = 128;
-            Pointer valuePointer = new Memory(valueLen);
-            IntByReference timestamp = new IntByReference();
-
-            // Get data types
-            getDataTypes(dataTypes).stream()
-                    .filter(dataType -> library.tdSensorValue(protocol, model, id, dataType, valuePointer, valueLen, timestamp) == TellstickCoreLibrary.TELLSTICK_SUCCESS)
+            getDataTypes(dataTypes)
                     .forEach(dataType -> {
-                        String value = valuePointer.getString(0);
-                        sensors.add(getSensor(id, protocol, model, dataType, value, timestamp.getValue()));
+                        sensors.add(new Sensor(this, id, protocol, model, dataType));
                     });
-
         }
 
         return sensors;
@@ -176,8 +163,8 @@ public class SensorHandler {
      *
      * @param sensor sensor
      */
-    private void fireSensorEvent(final Sensor sensor) {
-        eventRunner.offer(() -> sensorEventListeners.forEach(listener -> listener.sensorEvent(sensor)));
+    private void fireSensorEvent(final Sensor sensor, final SensorValue value) {
+        executor.execute(() -> sensorEventListeners.forEach(listener -> listener.sensorEvent(sensor, value)));
     }
 
     /**
@@ -193,16 +180,15 @@ public class SensorHandler {
                     protocol, model, id, dataType, value, timestamp, callbackId);
 
             // Don't fire event to often
-            if (!timeoutHandler.isReady(string))
+            if (!timeoutHandler.isReady(string, TIMEOUT))
                 return;
 
             // Debug log
             logger.debug(string);
 
             // Fire sensor event
-            fireSensorEvent(getSensor(id, protocol, model, dataType, value, timestamp));
+            fireSensorEvent(new Sensor(SensorHandler.this, id, protocol, model, dataType),
+                    SensorValue.parseSensorValue(dataType, timestamp, value));
         }
-
     }
-
 }

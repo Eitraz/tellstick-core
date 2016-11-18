@@ -1,43 +1,71 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Map;
 
-public interface RawDeviceEvent extends Serializable {
-    String _CLASS = "class";
-    String PROTOCOL = "protocol";
-    String MODEL = "model";
+@SuppressWarnings("WeakerAccess")
+public class RawDeviceEvent {
+    public static final String _CLASS = "class";
+    public static final String PROTOCOL = "protocol";
+    public static final String MODEL = "model";
 
-    String CONTROLLER_ID = "controllerId";
+    public static final String CONTROLLER_ID = "controllerId";
 
-    String COMMAND = "command";
-    String SENSOR = "sensor";
+    public static final String COMMAND = "command";
+    public static final String SENSOR = "sensor";
 
-    String ID = "id";
-    String METHOD = "method";
+    public static final String ID = "id";
+    public static final String METHOD = "method";
 
-    String HOUSE = "house";
-    String UNIT = "unit";
-    String GROUP = "group";
+    public static final String HOUSE = "house";
+    public static final String UNIT = "unit";
+    public static final String GROUP = "group";
 
-    String BELL = "bell";
-    String ON = "turnon";
-    String OFF = "turnoff";
+    //    public static final String BELL = "bell";
+    public static final String ON = "turnon";
+    public static final String OFF = "turnoff";
 
-    String HUMIDITY = "humidity";
-    String TEMP = "temp";
+    public static final String HUMIDITY = "humidity";
+    public static final String TEMP = "temp";
 
-    String get(String key);
+    private Map<String, String> parameters;
+    private final LocalDateTime time;
 
-    String get_Class();
+    public RawDeviceEvent(Map<String, String> parameters) {
+        this.parameters = parameters;
+        this.time = LocalDateTime.now();
+    }
 
-    String getControllerId();
+    public String get(String key) {
+        return parameters.get(key);
+    }
 
-    String getModel();
+    public String get_Class() {
+        return get(_CLASS);
+    }
 
-    String getProtocol();
+    public String getControllerId() {
+        return get(CONTROLLER_ID);
+    }
 
-    long getTime();
+    public String getModel() {
+        return get(MODEL);
+    }
 
-    Map<String, String> getParameters();
+    public String getProtocol() {
+        return get(PROTOCOL);
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s [%s]", getClass().getSimpleName(), parameters);
+    }
 }

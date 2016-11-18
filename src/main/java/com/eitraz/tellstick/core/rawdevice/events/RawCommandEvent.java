@@ -1,11 +1,26 @@
 package com.eitraz.tellstick.core.rawdevice.events;
 
-public interface RawCommandEvent extends RawDeviceEvent {
-    String getHouse();
+import java.util.Map;
 
-    String getUnit();
+@SuppressWarnings("WeakerAccess")
+public class RawCommandEvent extends RawDeviceEvent {
+    public RawCommandEvent(Map<String, String> parameters) {
+        super(parameters);
+    }
 
-    String getGroup();
+    public String getHouse() {
+        return get(HOUSE);
+    }
 
-    String getMethod();
+    public String getUnit() {
+        return get(UNIT);
+    }
+
+    public String getGroup() {
+        return get(GROUP);
+    }
+
+    public String getMethod() {
+        return get(METHOD);
+    }
 }
